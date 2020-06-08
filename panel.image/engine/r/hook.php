@@ -12,7 +12,7 @@ function fields($_) {
                     'view' => [
                         'title' => 'Image',
                         'type' => 'field',
-                        'content' => '<img alt="' . \basename($image) . '" src="' . $image . '?v=' . filemtime($_['f']) . '"><input name="image[link]" type="hidden" value="' . $image . '">',
+                        'content' => '<img alt="' . \basename($image) . '" src="' . $image . '?v=' . filemtime($_['f']) . '" loading="lazy"><input name="image[link]" type="hidden" value="' . $image . '">',
                         'hidden' => 's' === $_['task'] || !$image,
                         'stack' => 9.9
                     ],
@@ -139,7 +139,7 @@ function requests($_, $lot) {
         }
     }
     if (isset($link)) {
-        $data = \From::page(\file_get_contents($_['f']));
+        $data = \From::page(\file_get_contents($_['f']), true);
         if (false !== $link) {
             $data['image'] = $link;
         } else {
