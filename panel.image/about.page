@@ -4,6 +4,97 @@ description: Add featured image field to your panel extension.
 type: Markdown
 author: Taufik Nurrohman
 version: 0.0.0
+
+use:
+  '.\lot\x\image': 0
+  '.\lot\x\panel': 1
 ...
 
-Such description.
+This guide page is only useful for layout developers.
+
+### How to Change the Image Size List
+
+ - Set the `rect-auto` property value to `false` to force the writer to select an image dimension specified by the layout.
+ - Add or remove more image dimension options through the `rect` property.
+
+### How to Change the Options Directly
+
+Open `.\lot\x\panel.image\state.php` file with your source code editor, then adjust the value of the data in it according to your needs:
+
+~~~ .php
+return [
+    'rect' => [ // List of pre-defined image dimension(s)
+        '1280x720' => "1280 \u{00D7} 720",
+        '1024x538' => "1024 \u{00D7} 538",
+        '300x300' => "300 \u{00D7} 300",
+        '150x150' => "150 \u{00D7} 150"
+    ],
+    'rect-auto' => true, // Allow user to preserve image dimension as-is?
+    'size' => [0, 204800] // Allowed minimum and maximum image file size in byte(s) (0 – 200 KB)
+];
+~~~
+
+### How to Change the Options Through Other Extensions
+
+In your executable extension file, add these instructions:
+
+~~~ .php
+// To modify some options
+State::set("x.panel\\.image.rect-auto", false);
+State::set("x.panel\\.image.rect", [
+    '150x150' => 'Small',
+    '300x300' => 'Medium',
+    '600x600' => 'Large'
+]);
+
+// To remove some options
+State::let("x.panel\\.image.rect.300x300");
+State::set("x.panel\\.image.rect", [
+    '150x150' => null,
+    '300x300' => null
+]);
+~~~
+
+### How to Change the Options Through Layout
+
+Open `.\lot\layout\state.php` file with your source code editor. Current extension’s state data will be overwritten by the layout state data under the `x.state\.image` property:
+
+~~~ .php
+return [
+    'x' => [
+        // Custom “page” extension state
+        'page' => [ … ],
+        // Custom “panel.image” extension state
+        'panel.image' => [
+            'rect-auto' => false,
+            'rect' => [ … ]
+        ]
+    ]
+];
+~~~
+
+### How to Remove the Image Tab
+
+~~~ .php
+Hook::let('_', "_\\lot\\x\\panel\\image\\page\\fields");
+~~~
+
+### How to Remove the Image Tab Conditionally
+
+~~~ .php
+// To only show the image field in gallery pages
+if ('page/gallery' === $_['path'] || 0 === strpos($_['path'], 'page/gallery/')) {
+    // Yo!
+} else {
+    // Remove the image tab
+    Hook::let('_', "_\\lot\\x\\panel\\image\\page\\fields");
+}
+~~~
+
+~~~ .php
+// To show the image field in all pages but gallery pages
+if ('page/gallery' === $_['path'] || 0 === strpos($_['path'], 'page/gallery/')) {
+    // Remove the image tab
+    Hook::let('_', "_\\lot\\x\\panel\\image\\page\\fields");
+}
+~~~

@@ -4,6 +4,10 @@ function fields($_) {
     extract($GLOBALS, \EXTR_SKIP);
     $has_image_extension = !empty($state->x->image);
     $image = (new \Page($_['f']))['image'];
+    $resize_options = (array) ($state->x->{'panel.image'}->rect ?? []);
+    if (!empty($state->x->{'panel.image'}->{'rect-auto'})) {
+        $resize_options = ["" => 'None'] + $resize_options;
+    }
     $_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['image'] = [
         'lot' => [
             'fields' => [
@@ -12,7 +16,7 @@ function fields($_) {
                     'view' => [
                         'title' => 'Image',
                         'type' => 'field',
-                        'content' => '<img alt="' . \basename($image) . '" src="' . $image . '?v=' . filemtime($_['f']) . '" loading="lazy"><input name="image[link]" type="hidden" value="' . $image . '">',
+                        'content' => '<img alt="' . \basename($image) . '" src="' . $image . '?v=' . \filemtime($_['f']) . '" loading="lazy"><input name="image[link]" type="hidden" value="' . $image . '">',
                         'hidden' => 's' === $_['task'] || !$image,
                         'stack' => 9.9
                     ],
@@ -31,7 +35,7 @@ function fields($_) {
                     ] : [
                         'title' => 'File',
                         // Unless it’s prefixed by `blob`, `data`, `file` or `page`,
-                        // this field data will not be stored t a file automatically
+                        // this field data will not be stored to a file automatically
                         'type' => 'blob',
                         'name' => 'image[blob]',
                         'stack' => 10
@@ -44,11 +48,9 @@ function fields($_) {
                         'description' => $has_image_extension ? 'Set maximum width and height of the image.' : 'This feature requires you to install the <a href="https://github.com/mecha-cms/x.image" target="_blank">image</a> extension.',
                         'type' => 'combo',
                         'active' => $has_image_extension,
-                        'lot' => [
-                            "" => 'None',
-                            '1024x538' => \S . "1024 \u{00D7} 538" . \S,
-                            // '250x250' => \S . "250 \u{00D7} 250" . \S
-                        ],
+                        'sort' => false,
+                        'lot' => $resize_options,
+                        'value' => \Session::get(\dechex(\crc32('panel.image.rect'))),
                         'hidden' => 'g' === $_['task'] && $image,
                         'stack' => 20
                     ]
@@ -66,6 +68,9 @@ function requests($_, $lot) {
     if ('POST' !== $_SERVER['REQUEST_METHOD']) {
         return $_;
     }
+    // Store current image rect value to session, so that when you do open a new page editor,
+    // then the image rect field value will be set to the previous image rect value automatically
+    \Session::set(\dechex(\crc32('panel.image.rect')), $lot['image']['rect'] ?? "");
     // Abort by previous hook’s return value if any
     if (!empty($_['alert']['error'])) {
         return $_;
@@ -73,6 +78,7 @@ function requests($_, $lot) {
     extract($GLOBALS, \EXTR_SKIP);
     $image = $lot['image'] ?? [];
     $link = null; // Prepare page’s `image` data
+    $sizes = (array) ($state->x->{'panel.image'}->size ?? []);
     // Delete or update
     if (!empty($image['link'])) {
         // Delete
@@ -110,12 +116,12 @@ function requests($_, $lot) {
         } else if (0 !== \strpos($image['blob']['type'], 'image/')) {
             $_['alert']['error'][] = ['Please upload an image file.'];
         // Check for image file size
-        } else if (0 /* image too small */) {
-            // $_['alert']['error'][] = ['Minimum file size allowed to upload is %s.', '<code>' . \File::sizer($test_size) . '</code>'];
-        } else if (0 /* image too large */) {
-            // $_['alert']['error'][] = ['Maximum file size allowed to upload is %s.', '<code>' . \File::sizer($test_size) . '</code>'];
+        } else if ($image['blob']['size'] < ($i = $sizes[0] ?? 0)) {
+            $_['alert']['error'][] = ['Minimum file size allowed to upload is %s.', '<code>' . \File::sizer($i) . '</code>'];
+        } else if ($image['blob']['size'] > ($i = $sizes[1] ?? 204800)) {
+            $_['alert']['error'][] = ['Maximum file size allowed to upload is %s.', '<code>' . \File::sizer($i) . '</code>'];
         } else {
-            // Uploading...
+            // Upload…
             $response = \File::push($image['blob'], $folder);
             if (false === $response) {
                 $_['alert']['info'][] = ['%s %s already exists.', ['Image', $f]];
@@ -135,9 +141,10 @@ function requests($_, $lot) {
                 $link = \To::URL($response);
             }
             // Remove temporary form data
-            \Post::let('image');
+            unset($lot['image'], $_POST['image']);
         }
     }
+    // Use the uploaded image URL as the page’s `image` property
     if (isset($link)) {
         $data = \From::page(\file_get_contents($_['f']), true);
         if (false !== $link) {
@@ -155,4 +162,4 @@ function requests($_, $lot) {
 \Hook::set([
     'do.page.get',
     'do.page.set'
-], __NAMESPACE__ . "\\requests", 20);
+], __NAMESPACE__ . "\\requests", 20); // Make sure to run this hook after the default page create/update event
