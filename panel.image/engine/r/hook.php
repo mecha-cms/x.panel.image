@@ -3,7 +3,7 @@
 function fields($_) {
     extract($GLOBALS, \EXTR_SKIP);
     $has_image_extension = !empty($state->x->image);
-    $image = (new \Page($_['f']))['image'];
+    $image = (new \Page($_['f']))->image;
     $resize_options = (array) ($state->x->{'panel.image'}->rect ?? []);
     if (!empty($state->x->{'panel.image'}->{'rect-auto'})) {
         $resize_options = ["" => 'None'] + $resize_options;
