@@ -82,8 +82,8 @@ Hook::let('_', "_\\lot\\x\\panel\\image\\page\\fields");
 ### How to Remove the Image Tab Conditionally
 
 ~~~ .php
-// To only show the image field in gallery pages
-if ('page/gallery' === $_['path'] || 0 === strpos($_['path'], 'page/gallery/')) {
+// To only show the image tab in gallery pages
+if (0 === strpos($_['path'], 'page/gallery') || 0 === strpos($_['path'], 'page/gallery/')) {
     // Yo!
 } else {
     // Remove the image tab
@@ -92,8 +92,8 @@ if ('page/gallery' === $_['path'] || 0 === strpos($_['path'], 'page/gallery/')) 
 ~~~
 
 ~~~ .php
-// To show the image field in all pages but gallery pages
-if ('page/gallery' === $_['path'] || 0 === strpos($_['path'], 'page/gallery/')) {
+// To show the image tab in all pages but gallery pages
+if (0 === strpos($_['path'], 'page/gallery') || 0 === strpos($_['path'], 'page/gallery/')) {
     // Remove the image tab
     Hook::let('_', "_\\lot\\x\\panel\\image\\page\\fields");
 }
