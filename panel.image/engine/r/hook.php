@@ -63,20 +63,20 @@ function fields($_) {
     return $_;
 }
 
-function requests($_, $lot) {
+function requests($_) {
     // Not a `POST` request, abort!
     if ('POST' !== $_SERVER['REQUEST_METHOD']) {
         return $_;
     }
     // Store current image rect value to session, so that when you do open a new page editor,
     // then the image rect field value will be set to the previous image rect value automatically
-    \Session::set(\dechex(\crc32('panel.image.rect')), $lot['image']['rect'] ?? "");
+    \Session::set(\dechex(\crc32('panel.image.rect')), $_['form']['image']['rect'] ?? "");
     // Abort by previous hook’s return value if any
     if (!empty($_['alert']['error'])) {
         return $_;
     }
     extract($GLOBALS, \EXTR_SKIP);
-    $image = $lot['image'] ?? [];
+    $image = $_['form']['image'] ?? [];
     $link = null; // Prepare page’s `image` data
     $sizes = (array) ($state->x->{'panel.image'}->size ?? []);
     // Delete or update
@@ -141,7 +141,7 @@ function requests($_, $lot) {
                 $link = \To::URL($response);
             }
             // Remove temporary form data
-            unset($lot['image'], $_POST['image']);
+            unset($_['form']['image'], $_POST['image']);
         }
     }
     // Use the uploaded image URL as the page’s `image` property
