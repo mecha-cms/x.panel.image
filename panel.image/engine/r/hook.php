@@ -52,7 +52,7 @@ JS;
                         'stack' => 10
                     ],
                     'name' => [
-                        'description' => 'Set name of the image. Leave empty to use the file name.',
+                        'description' => 'Set name of the image. Leave empty to use the original file name.',
                         'type' => 'text',
                         'pattern' => "^([_.]?[a-z\\d]+([_.-][a-z\\d]+)*)?\\.(gif|jpe?g|png)$",
                         // Unless it’s prefixed by `blob`, `data`, `file` or `page`,
