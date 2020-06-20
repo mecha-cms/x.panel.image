@@ -8,6 +8,6 @@ Featured Image Field Extension for Mecha
 Release Notes
 -------------
 
-### x.x.x
+### master
 
  - Initial stable release.

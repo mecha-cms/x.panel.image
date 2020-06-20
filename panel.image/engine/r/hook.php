@@ -77,6 +77,7 @@ function requests($_) {
     }
     extract($GLOBALS, \EXTR_SKIP);
     $image = $_['form']['image'] ?? [];
+    $key = $state->x->{'panel.image'}->name ?? 'image';
     $link = null; // Prepare page’s `image` data
     $sizes = (array) ($state->x->{'panel.image'}->size ?? []);
     // Delete or update
@@ -97,12 +98,13 @@ function requests($_) {
                 } else {
                     \unlink($f);
                     $link = false;
+                    unset($_['form']['page'][$key]);
                     $_['alert']['success'][] = ['%s %s successfully deleted.', ['Image', '<code>' . \strtr($f, [\ROOT => '.']) . '</code>']];
                 }
             }
         // Update
         } else {
-            $link = $image['link'];
+            $_['form']['page'][$key] = $link = $image['link'];
         }
     // Upload
     } else if (!empty($image['blob']['name'])) {
@@ -125,10 +127,10 @@ function requests($_) {
             $response = \File::push($image['blob'], $folder);
             if (false === $response) {
                 $_['alert']['info'][] = ['%s %s already exists.', ['Image', $f]];
-                $link = \To::URL($folder . \DS . $name);
+                $_['form']['page'][$key] = $link = \To::URL($folder . \DS . $name);
             // Check for error code
             } else if (\is_int($response)) {
-                $_['alert']['error'][] = '#blob:' . $response;
+                $_['alert']['error'][] = 'Failed to upload with error code: ' . $response;
             } else {
                 // Resize image
                 if (isset($state->x->image) && !empty($image['rect']) && \preg_match('/^(\d+)x(\d+)$/', $image['rect'], $m)) {
@@ -138,7 +140,7 @@ function requests($_) {
                     $blob->store($blob->path); // Save as current image with the updated size
                 }
                 $_['alert']['success'][] = ['%s %s successfully uploaded.', ['Image', $f]];
-                $link = \To::URL($response);
+                $_['form']['page'][$key] = $link = \To::URL($response);
             }
             // Remove temporary form data
             unset($_['form']['image'], $_POST['image']);
@@ -148,9 +150,9 @@ function requests($_) {
     if (isset($link)) {
         $data = \From::page(\file_get_contents($_['f']), true);
         if (false !== $link) {
-            $data['image'] = $link;
+            $data[$key] = $link;
         } else {
-            unset($data['image']);
+            unset($data[$key]);
         }
         \file_put_contents($_['f'], \To::page($data));
     }
