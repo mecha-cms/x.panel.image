@@ -8,6 +8,17 @@ function fields($_) {
     if (!empty($state->x->{'panel.image'}->{'rect-auto'})) {
         $resize_options = ["" => 'None'] + $resize_options;
     }
+    $js = <<<JS
+<script>
+let blob = document.forms.edit['image[blob]'],
+    name = document.forms.edit['image[name]'];
+if (blob && name) {
+    blob.addEventListener('change', function() {
+        name.value = this.value.split(/[\\\\/]/).pop();
+    }, false);
+}
+</script>
+JS;
     $_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['image'] = [
         'lot' => [
             'fields' => [
@@ -40,8 +51,19 @@ function fields($_) {
                         'name' => 'image[blob]',
                         'stack' => 10
                     ],
+                    'name' => [
+                        'description' => 'Set name of the image. Leave empty to use the file name.',
+                        'type' => 'text',
+                        'pattern' => "^([_.]?[a-z\\d]+([_.-][a-z\\d]+)*)?\\.(gif|jpe?g|png)$",
+                        // Unless it’s prefixed by `blob`, `data`, `file` or `page`,
+                        // this field data will not be stored to a file automatically
+                        'name' => 'image[name]',
+                        'alt' => 'foo-bar.jpg',
+                        'hidden' => 'g' === $_['task'] && $image,
+                        'stack' => 20
+                    ],
                     'rect' => [
-                        'title' => 'Resize',
+                        'title' => 'Dimension',
                         // Unless it’s prefixed by `blob`, `data`, `file` or `page`,
                         // this field data will not be stored to a file automatically
                         'name' => 'image[rect]',
@@ -52,10 +74,17 @@ function fields($_) {
                         'lot' => $resize_options,
                         'value' => \Session::get(\dechex(\crc32('panel.image.rect'))),
                         'hidden' => 'g' === $_['task'] && $image,
-                        'stack' => 20
+                        'stack' => 30
                     ]
                 ],
                 'stack' => 10
+            ],
+            'script' => [
+                '0' => false, // Disable the node name, so it will leave only the content
+                'type' => 'content',
+                'content' => $js,
+                'hidden' => 'g' === $_['task'] && $image,
+                'stack' => 40
             ]
         ],
         'stack' => 11
@@ -70,7 +99,9 @@ function requests($_) {
     }
     // Store current image rect value to session, so that when you do open a new page editor,
     // then the image rect field value will be set to the previous image rect value automatically
-    \Session::set(\dechex(\crc32('panel.image.rect')), $_['form']['image']['rect'] ?? "");
+    if ($rect = $_['form']['image']['rect'] ?? "") {
+        \Session::set(\dechex(\crc32('panel.image.rect')), $rect);
+    }
     // Abort by previous hook’s return value if any
     if (!empty($_['alert']['error'])) {
         return $_;
@@ -108,7 +139,7 @@ function requests($_) {
         }
     // Upload
     } else if (!empty($image['blob']['name'])) {
-        $x = \pathinfo($image['blob']['name'] = $name = \To::file($image['blob']['name']), \PATHINFO_EXTENSION);
+        $x = \pathinfo($image['blob']['name'] = $name = \To::file($image['name'] ?? $image['blob']['name']), \PATHINFO_EXTENSION);
         $folder = \LOT . \DS . 'asset' . \DS . $x . (1 === $user['status'] ? "" : \DS . $user->key);
         $f = '<code>' . \strtr($folder . \DS . $name, [\ROOT => '.']) . '</code>'; // File name preview
         // Check for image file extension
