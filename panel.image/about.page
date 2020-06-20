@@ -113,7 +113,7 @@ Hook::set(['do.page.get', 'do.page.set'], function($_) use($name, $url) {
         $data = From::page($file->content, true);
         if (isset($data[$name])) {
             // Remove the root URL
-            $data['image'] = strtr($data[$name], [$url . "" => ""]);
+            $data[$name] = strtr($data[$name], [$url . "" => ""]);
             // Update the page file
             $file->set(To::page($data))->save();
         }
