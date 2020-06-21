@@ -3,6 +3,7 @@
 function fields($_) {
     extract($GLOBALS, \EXTR_SKIP);
     $has_image_extension = !empty($state->x->image);
+    $tab_title = $state->x->{'panel.image'}->{'tab-title'} ?? 'Image';
     $key = $state->x->{'panel.image'}->name ?? 'image';
     $image = (new \Page($_['f']))->{$key};
     $resize_options = (array) ($state->x->{'panel.image'}->rect ?? []);
@@ -21,6 +22,7 @@ if (blob && name) {
 </script>
 JS;
     $_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['image'] = [
+        'title' => $tab_title,
         'lot' => [
             'fields' => [
                 'type' => 'fields',
