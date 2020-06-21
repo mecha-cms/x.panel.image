@@ -3,7 +3,8 @@
 function fields($_) {
     extract($GLOBALS, \EXTR_SKIP);
     $has_image_extension = !empty($state->x->image);
-    $image = (new \Page($_['f']))->image;
+    $key = $state->x->{'panel.image'}->name ?? 'image';
+    $image = (new \Page($_['f']))->{$key};
     $resize_options = (array) ($state->x->{'panel.image'}->rect ?? []);
     if (!empty($state->x->{'panel.image'}->{'rect-auto'})) {
         $resize_options = ["" => 'None'] + $resize_options;
@@ -80,7 +81,7 @@ JS;
                 'stack' => 10
             ],
             'script' => [
-                '0' => false, // Disable the node name, so it will leave only the content
+                '0' => false, // Remove node name, so it will leave only the content
                 'type' => 'content',
                 'content' => $js,
                 'hidden' => 'g' === $_['task'] && $image,
@@ -139,7 +140,7 @@ function requests($_) {
         }
     // Upload
     } else if (!empty($image['blob']['name'])) {
-        $x = \pathinfo($image['blob']['name'] = $name = \To::file($image['name'] ?? $image['blob']['name']), \PATHINFO_EXTENSION);
+        $x = \pathinfo($image['blob']['name'] = $name = \basename(\To::file($image['name'] ?? $image['blob']['name'])), \PATHINFO_EXTENSION);
         $folder = \LOT . \DS . 'asset' . \DS . $x . (1 === $user['status'] ? "" : \DS . $user->key);
         $f = '<code>' . \strtr($folder . \DS . $name, [\ROOT => '.']) . '</code>'; // File name preview
         // Check for image file extension
