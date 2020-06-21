@@ -63,7 +63,7 @@ State::set("x.panel\\.image.rect", [
 
 ### How to Change the Options Through Layout
 
-Open `.\lot\layout\state.php` file with your source code editor. Current extension’s state data will be overwritten by the layout state data under the `x.state\.image` property:
+Open `.\lot\layout\state.php` file with your source code editor. Current extension’s state data will be overwritten by the layout state data under the `x.panel\.image` property:
 
 ~~~ .php
 return [
