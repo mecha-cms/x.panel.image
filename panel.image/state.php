@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'title' => 'Image',
     'name' => 'image', // The page property name to store the image URL
     'rect' => [ // List of pre-defined image dimension(s)
         '1280x720' => "1280 \u{00D7} 720",
