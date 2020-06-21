@@ -23,6 +23,7 @@ Open `.\lot\x\panel.image\state.php` file with your source code editor, then adj
 
 ~~~ .php
 return [
+    'title' => 'Image', // The tab title
     'name' => 'image', // The page property name to store the image URL
     'rect' => [ // List of pre-defined image dimension(s)
         '1280x720' => "1280 \u{00D7} 720",

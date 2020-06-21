@@ -3,11 +3,12 @@
 function fields($_) {
     extract($GLOBALS, \EXTR_SKIP);
     $has_image_extension = !empty($state->x->image);
-    $title = $state->x->{'panel.image'}->title ?? 'Image';
-    $key = $state->x->{'panel.image'}->name ?? 'image';
-    $image = (new \Page($_['f']))->{$key};
-    $resize_options = (array) ($state->x->{'panel.image'}->rect ?? []);
-    if (!empty($state->x->{'panel.image'}->{'rect-auto'})) {
+    $c = $state->x->{'panel.image'};
+    $title = $c->title ?? 'Image';
+    $key = $c->name ?? 'image';
+    $image = (new \Page($_['f']))->{\f2p($key)};
+    $resize_options = (array) ($c->rect ?? []);
+    if (!empty($c->{'rect-auto'})) {
         $resize_options = ["" => 'None'] + $resize_options;
     }
     $js = <<<JS
@@ -111,9 +112,10 @@ function requests($_) {
     }
     extract($GLOBALS, \EXTR_SKIP);
     $image = $_['form']['image'] ?? [];
-    $key = $state->x->{'panel.image'}->name ?? 'image';
+    $c = $state->x->{'panel.image'};
+    $key = $c->name ?? 'image';
     $link = null; // Prepare page’s `image` data
-    $sizes = (array) ($state->x->{'panel.image'}->size ?? []);
+    $sizes = (array) ($c->size ?? []);
     // Delete or update
     if (!empty($image['link'])) {
         // Delete
