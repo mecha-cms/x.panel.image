@@ -1,9 +1,9 @@
 Featured Image Field Extension for Mecha
 ========================================
 
-![1](https://user-images.githubusercontent.com/1669261/84036179-1094e180-a9c7-11ea-9ddb-2add35b8dba8.png)
+![1](https://user-images.githubusercontent.com/1669261/104103665-fe20b480-52d5-11eb-8f9e-254ef92d0671.png)
 
-![2](https://user-images.githubusercontent.com/1669261/84036188-14286880-a9c7-11ea-92a2-734724fd29f3.png)
+![2](https://user-images.githubusercontent.com/1669261/104103668-ff51e180-52d5-11eb-87d2-cf8bb08281cf.png)
 
 Release Notes
 -------------
