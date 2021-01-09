@@ -13,13 +13,15 @@ function fields($_) {
     }
     $js = <<<JS
 <script>
-let blob = document.forms.edit['image[blob]'],
-    name = document.forms.edit['image[name]'];
-if (blob && name) {
-    blob.addEventListener('change', function() {
-        name.value = this.value.split(/[\\\\/]/).pop();
-    }, false);
-}
+(doc => {
+    let imageBlob = doc.forms.set['image[blob]'],
+        imageName = doc.forms.set['image[name]'];
+    if (imageBlob && imageName) {
+        imageBlob.addEventListener('change', function() {
+            imageName.value = this.value.split(/[\\\\/]/).pop();
+        });
+    }
+})(document);
 </script>
 JS;
     $_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['image'] = [
@@ -32,7 +34,7 @@ JS;
                         'title' => 'Image',
                         'type' => 'field',
                         'content' => '<img alt="' . \basename($image) . '" src="' . $image . '?v=' . \filemtime($_['f']) . '" loading="lazy"><input name="image[link]" type="hidden" value="' . $image . '">',
-                        'hidden' => 's' === $_['task'] || !$image,
+                        'skip' => 's' === $_['task'] || !$image,
                         'stack' => 9.9
                     ],
                     'image' => 'g' === $_['task'] && $image ? [
@@ -63,7 +65,7 @@ JS;
                         // this field data will not be stored to a file automatically
                         'name' => 'image[name]',
                         'alt' => 'foo-bar.jpg',
-                        'hidden' => 'g' === $_['task'] && $image,
+                        'skip' => 'g' === $_['task'] && $image,
                         'stack' => 20
                     ],
                     'rect' => [
@@ -77,7 +79,7 @@ JS;
                         'sort' => false,
                         'lot' => $resize_options,
                         'value' => \Session::get(\dechex(\crc32('panel.image.rect'))),
-                        'hidden' => 'g' === $_['task'] && $image,
+                        'skip' => 'g' === $_['task'] && $image,
                         'stack' => 30
                     ]
                 ],
@@ -87,7 +89,7 @@ JS;
                 '0' => false, // Remove node name, so it will leave only the content
                 'type' => 'content',
                 'content' => $js,
-                'hidden' => 'g' === $_['task'] && $image,
+                'skip' => 'g' === $_['task'] && $image,
                 'stack' => 40
             ]
         ],
