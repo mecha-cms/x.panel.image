@@ -113,7 +113,7 @@ Hook::set(['do.page.get', 'do.page.set'], function($_) use($name, $url) {
     if (!empty($_['alert']['error'])) {
         return $_; // Abort on error!
     }
-    if (Request::is('Post') && $_['f']) {
+    if ('post' === $_['form']['type'] && $_['f']) {
         $file = new File($_['f']);
         $data = From::page($file->content, true);
         if (isset($data[$name])) {
