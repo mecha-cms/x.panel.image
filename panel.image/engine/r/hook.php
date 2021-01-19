@@ -64,7 +64,7 @@ JS;
                         // Unless it’s prefixed by `blob`, `data`, `file` or `page`,
                         // this field data will not be stored to a file automatically
                         'name' => 'image[name]',
-                        'alt' => 'foo-bar.jpg',
+                        'hint' => 'foo-bar.jpg',
                         'skip' => 'g' === $_['task'] && $image,
                         'stack' => 20
                     ],
