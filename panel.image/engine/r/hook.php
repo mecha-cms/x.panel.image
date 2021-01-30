@@ -47,7 +47,7 @@ JS;
                                 'value' => 1
                             ]
                         ],
-                        'tags' => ['mt:0'],
+                        'tags' => ['mt:0' => 1],
                         'stack' => 10
                     ] : [
                         'title' => 'File',
@@ -100,12 +100,12 @@ JS;
 
 function requests($_) {
     // Not a `POST` request, abort!
-    if ('POST' !== $_SERVER['REQUEST_METHOD']) {
+    if ('post' !== $_['form']['type']) {
         return $_;
     }
     // Store current image rect value to session, so that when you do open a new page editor,
     // then the image rect field value will be set to the previous image rect value automatically
-    if ($rect = $_['form']['image']['rect'] ?? "") {
+    if ($rect = $_['form']['lot']['image']['rect'] ?? "") {
         \Session::set(\dechex(\crc32('panel.image.rect')), $rect);
     }
     // Abort by previous hook’s return value if any
@@ -113,7 +113,7 @@ function requests($_) {
         return $_;
     }
     extract($GLOBALS, \EXTR_SKIP);
-    $image = $_['form']['image'] ?? [];
+    $image = $_['form']['lot']['image'] ?? [];
     $c = $state->x->{'panel.image'};
     $key = $c->name ?? 'image';
     $link = null; // Prepare page’s `image` data
@@ -136,13 +136,13 @@ function requests($_) {
                 } else {
                     \unlink($f);
                     $link = false;
-                    unset($_['form']['page'][$key]);
+                    unset($_['form']['lot']['page'][$key]);
                     $_['alert']['success'][] = ['%s %s successfully deleted.', ['Image', '<code>' . \strtr($f, [\ROOT => '.']) . '</code>']];
                 }
             }
         // Update
         } else {
-            $_['form']['page'][$key] = $link = $image['link'];
+            $_['form']['lot']['page'][$key] = $link = $image['link'];
         }
     // Upload
     } else if (!empty($image['blob']['name'])) {
@@ -165,7 +165,7 @@ function requests($_) {
             $response = \File::push($image['blob'], $folder);
             if (false === $response) {
                 $_['alert']['info'][] = ['%s %s already exists.', ['Image', $f]];
-                $_['form']['page'][$key] = $link = \To::URL($folder . \DS . $name);
+                $_['form']['lot']['page'][$key] = $link = \To::URL($folder . \DS . $name);
             // Check for error code
             } else if (\is_int($response)) {
                 $_['alert']['error'][] = 'Failed to upload with error code: ' . $response;
@@ -178,10 +178,10 @@ function requests($_) {
                     $blob->store($blob->path); // Save as current image with the updated size
                 }
                 $_['alert']['success'][] = ['%s %s successfully uploaded.', ['Image', $f]];
-                $_['form']['page'][$key] = $link = \To::URL($response);
+                $_['form']['lot']['page'][$key] = $link = \To::URL($response);
             }
             // Remove temporary form data
-            unset($_['form']['image'], $_POST['image']);
+            unset($_['form']['lot']['image']);
         }
     }
     // Use the uploaded image URL as the page’s `image` property
