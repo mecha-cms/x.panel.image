@@ -8,6 +8,10 @@ Featured Image Field Extension for Mecha
 Release Notes
 -------------
 
+### 1.1.0
+
+ - Updated for Panel 2.5.0.
+
 ### 1.0.0
 
  - Initial stable release.
