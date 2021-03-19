@@ -1,104 +1,6 @@
-<?php namespace _\lot\x\panel\image\page;
+<?php namespace x\panel__image;
 
-function fields($_) {
-    extract($GLOBALS, \EXTR_SKIP);
-    $has_image_extension = !empty($state->x->image);
-    $c = $state->x->{'panel.image'};
-    $title = $c->title ?? 'Image';
-    $key = $c->name ?? 'image';
-    $image = (new \Page($_['f']))->{\f2p($key)};
-    $resize_options = (array) ($c->rect ?? []);
-    if (!empty($c->{'rect-auto'})) {
-        $resize_options = ["" => 'None'] + $resize_options;
-    }
-    $js = <<<JS
-<script>
-(doc => {
-    let imageBlob = doc.forms.set['image[blob]'],
-        imageName = doc.forms.set['image[name]'];
-    if (imageBlob && imageName) {
-        imageBlob.addEventListener('change', function() {
-            imageName.value = this.value.split(/[\\\\/]/).pop();
-        });
-    }
-})(document);
-</script>
-JS;
-    $_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['image'] = [
-        'title' => $title,
-        'lot' => [
-            'fields' => [
-                'type' => 'fields',
-                'lot' => [
-                    'view' => [
-                        'title' => 'Image',
-                        'type' => 'field',
-                        'content' => '<img alt="' . \basename($image) . '" src="' . $image . '?v=' . \filemtime($_['f']) . '" loading="lazy"><input name="image[link]" type="hidden" value="' . $image . '">',
-                        'skip' => 's' === $_['task'] || !$image,
-                        'stack' => 9.9
-                    ],
-                    'image' => 'g' === $_['task'] && $image ? [
-                        'title' => "",
-                        'type' => 'items',
-                        'name' => 'image',
-                        'lot' => [
-                            'let' => [
-                                'title' => 'Delete',
-                                'value' => 1
-                            ]
-                        ],
-                        'tags' => ['mt:0' => 1],
-                        'stack' => 10
-                    ] : [
-                        'title' => 'File',
-                        // Unless it’s prefixed by `blob`, `data`, `file` or `page`,
-                        // this field data will not be stored to a file automatically
-                        'type' => 'blob',
-                        'name' => 'image[blob]',
-                        'stack' => 10
-                    ],
-                    'name' => [
-                        'description' => 'Set name of the image. Leave empty to use the sanitized version of the original file name.',
-                        'type' => 'text',
-                        'pattern' => "^([_.]?[a-z\\d]+([_.-][a-z\\d]+)*)?\\.(gif|jpe?g|png)$",
-                        // Unless it’s prefixed by `blob`, `data`, `file` or `page`,
-                        // this field data will not be stored to a file automatically
-                        'name' => 'image[name]',
-                        'hint' => 'foo-bar.jpg',
-                        'skip' => 'g' === $_['task'] && $image,
-                        'stack' => 20
-                    ],
-                    'rect' => [
-                        'title' => 'Dimension',
-                        // Unless it’s prefixed by `blob`, `data`, `file` or `page`,
-                        // this field data will not be stored to a file automatically
-                        'name' => 'image[rect]',
-                        'description' => $has_image_extension ? 'Set maximum width and height of the image.' : 'This feature requires you to install the <a href="https://github.com/mecha-cms/x.image" target="_blank">image</a> extension.',
-                        'type' => 'combo',
-                        'active' => $has_image_extension,
-                        'sort' => false,
-                        'lot' => $resize_options,
-                        'value' => \Session::get(\dechex(\crc32('panel.image.rect'))),
-                        'skip' => 'g' === $_['task'] && $image,
-                        'stack' => 30
-                    ]
-                ],
-                'stack' => 10
-            ],
-            'script' => [
-                '0' => false, // Remove node name, so it will leave only the content
-                'type' => 'content',
-                'content' => $js,
-                'skip' => 'g' === $_['task'] && $image,
-                'stack' => 40
-            ]
-        ],
-        'stack' => 11
-    ];
-    return $_;
-}
-
-function requests($_) {
+function form($_) {
     // Not a `POST` request, abort!
     if ('post' !== $_['form']['type']) {
         return $_;
@@ -113,6 +15,7 @@ function requests($_) {
         return $_;
     }
     extract($GLOBALS, \EXTR_SKIP);
+    $has_image_extension = isset($state->x->image);
     $image = $_['form']['lot']['image'] ?? [];
     $c = $state->x->{'panel.image'};
     $key = $c->name ?? 'image';
@@ -123,7 +26,6 @@ function requests($_) {
         // Delete
         if (!empty($image['let'])) {
             $path = \strtr($image['link'], [
-                $url . "" => "",
                 '../' => "", // Prevent directory traversal attack
                 '/' => \DS
             ]);
@@ -131,7 +33,7 @@ function requests($_) {
                 // Just to be sure
                 if (false === \strpos(',gif,jpeg,jpg,png,', ',' . \pathinfo($f, \PATHINFO_EXTENSION) . ',')) {
                     $_['alert']['error'][] = ['Could not delete %s because it is likely not an image.', '<code>' . \basename($path) . '</code>'];
-                } else if (0 !== strpos(mime_content_type($f), 'image/')) {
+                } else if (0 !== \strpos(\mime_content_type($f), 'image/')) {
                     $_['alert']['error'][] = ['Could not delete %s because it is likely not an image.', '<code>' . \basename($path) . '</code>'];
                 } else {
                     \unlink($f);
@@ -171,7 +73,7 @@ function requests($_) {
                 $_['alert']['error'][] = 'Failed to upload with error code: ' . $response;
             } else {
                 // Resize image
-                if (isset($state->x->image) && !empty($image['rect']) && \preg_match('/^(\d+)x(\d+)$/', $image['rect'], $m)) {
+                if ($has_image_extension && !empty($image['rect']) && \preg_match('/^(\d+)x(\d+)$/', $image['rect'], $m)) {
                     $blob = new \Image($folder . \DS . $name);
                     $blob->crop((int) $m[1], (int) $m[2]);
                     $blob->let(); // Delete current image
@@ -188,7 +90,7 @@ function requests($_) {
     if (isset($link)) {
         $data = \From::page(\file_get_contents($_['f']), true);
         if (false !== $link) {
-            $data[$key] = $link;
+            $data[$key] = \URL::short($link, false); // Relative to the root folder
         } else {
             unset($data[$key]);
         }
@@ -197,9 +99,104 @@ function requests($_) {
     return $_;
 }
 
-\Hook::set('_', __NAMESPACE__ . "\\fields");
+function tab($_) {
+    extract($GLOBALS, \EXTR_SKIP);
+    $has_image_extension = isset($state->x->image);
+    $c = $state->x->{'panel.image'} ?? [];
+    $title = $c->title ?? 'Image';
+    $key = $c->name ?? 'image';
+    $image = \From::page(\file_get_contents($_['f']), true)[$key] ?? null;
+    $resize_options = (array) ($c->rect ?? []);
+    if (!empty($c->{'rect-auto'})) {
+        $resize_options = ["" => 'None'] + $resize_options;
+    }
+    $js = <<<JS
+(doc => {
+    let blob = doc.forms.set['image[blob]'],
+        name = doc.forms.set['image[name]'];
+    if (blob && name) {
+        blob.addEventListener('change', function() {
+            name.value = this.value.split(/[\\\\/]/).pop().toLowerCase().replace(/^(.*?)[.]([^.]*?)$/g, (m0, m1, m2) => {
+                return m1.replace(/[^a-z\\d]+/g, '-') + '.' + m2.replace(/[^a-z\\d]+/g, "");
+            });
+        });
+    }
+})(document);
+JS;
+    $_['asset']['script']['panel.image'] = [
+        'content' => $js,
+        'id' => false,
+        'stack' => 20
+    ];
+    $_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['image'] = [
+        'title' => $title,
+        'lot' => [
+            'fields' => [
+                'type' => 'fields',
+                'lot' => [
+                    'view' => [
+                        'title' => 'Image',
+                        'description' => '<a href="' . $url . $image . '" target="_blank">.' . $image . '</a>',
+                        'type' => 'field',
+                        'content' => '<img alt="' . \basename($image) . '" src="' . $url . $image . '?v=' . \filemtime($_['f']) . '" loading="lazy"><input name="image[link]" type="hidden" value="' . $image . '">',
+                        'skip' => 's' === $_['task'] || !$image,
+                        'stack' => 9.9
+                    ],
+                    'image' => 'g' === $_['task'] && $image ? [
+                        'title' => "",
+                        'type' => 'items',
+                        'name' => 'image',
+                        'lot' => [
+                            'let' => [
+                                'title' => 'Delete',
+                                'value' => 1
+                            ]
+                        ],
+                        'stack' => 10
+                    ] : [
+                        'title' => 'File',
+                        // Unless it’s prefixed by `blob`, `data`, `file` or `page`,
+                        // this field data will not be stored to a file automatically
+                        'type' => 'blob',
+                        'name' => 'image[blob]',
+                        'stack' => 10
+                    ],
+                    'name' => [
+                        'description' => 'Set name of the image. Leave empty to use the sanitized version of the original file name.',
+                        'type' => 'text',
+                        'pattern' => "^([_.]?[a-z\\d]+([_.-][a-z\\d]+)*)?\\.(gif|jpe?g|png)$",
+                        // Unless it’s prefixed by `blob`, `data`, `file` or `page`,
+                        // this field data will not be stored to a file automatically
+                        'name' => 'image[name]',
+                        'hint' => 'foo-bar.jpg',
+                        'skip' => 'g' === $_['task'] && $image,
+                        'stack' => 20
+                    ],
+                    'rect' => [
+                        'title' => 'Dimension',
+                        // Unless it’s prefixed by `blob`, `data`, `file` or `page`,
+                        // this field data will not be stored to a file automatically
+                        'name' => 'image[rect]',
+                        'description' => $has_image_extension ? 'Set maximum width and height of the image.' : 'This feature requires you to install the <a href="https://github.com/mecha-cms/x.image" target="_blank">image</a> extension.',
+                        'type' => 'combo',
+                        'active' => $has_image_extension,
+                        'sort' => false,
+                        'lot' => $resize_options,
+                        'value' => \Session::get(\dechex(\crc32('panel.image.rect'))),
+                        'skip' => 'g' === $_['task'] && $image,
+                        'stack' => 30
+                    ]
+                ],
+                'stack' => 10
+            ]
+        ],
+        'stack' => 11
+    ];
+    return $_;
+}
 
 \Hook::set([
     'do.page.get',
     'do.page.set'
-], __NAMESPACE__ . "\\requests", 20); // Make sure to run this hook after the default page create/update event
+], __NAMESPACE__ . "\\form", 20); // Make sure to run this hook after the default page create/update event
+\Hook::set('_', __NAMESPACE__ . "\\tab");

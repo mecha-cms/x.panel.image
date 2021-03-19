@@ -8,6 +8,11 @@ Featured Image Field Extension for Mecha
 Release Notes
 -------------
 
+### main
+
+ - [x] [@mecha-cms/mecha#96](https://github.com/mecha-cms/mecha/issues/96)
+ - [x] Always store image URL as path relative to the root folder.
+
 ### 1.1.0
 
  - Updated for Panel 2.5.0.
