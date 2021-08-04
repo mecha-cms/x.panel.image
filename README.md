@@ -1,5 +1,5 @@
-Featured Image Field Extension for Mecha
-========================================
+Featured Image Extension for Mecha&rsquo;s [Panel](https://github.com/mecha-cms/mecha)
+======================================================================================
 
 ![1](https://user-images.githubusercontent.com/1669261/104103665-fe20b480-52d5-11eb-8f9e-254ef92d0671.png)
 
