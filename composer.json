@@ -1,0 +1,8 @@
+{
+  "description": "Adds featured image field to your panel extension.",
+  "license": "GPL-3.0-or-later",
+  "name": "mecha-cms/x.panel.image",
+  "require": {
+    "mecha-cms/x.panel": "^3.0.0"
+  }
+}
