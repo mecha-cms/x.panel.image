@@ -1,6 +1,6 @@
 ---
 title: Panel Image
-description: Adds featured image field to your panel extension.
+description: Adds an image field to your page’s control panel.
 type: Markdown
 author: Taufik Nurrohman
 version: 2.0.0
