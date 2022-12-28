@@ -7,9 +7,10 @@ function _($_) {
         $title = $state->x->{'panel.image'}->title ?? 'Image';
         $page = new \Page($_['file'] ?: null);
         if ($image = $page[$key] ?? 0) {
-            $link = 0 === \strpos($image, '//') || false !== \strpos($image, '://') || 0 !== \strpos($image, '/lot/asset/');
+            $link = 0 === \strpos($image, '//') || 0 === \strpos($image, 'data:image/') || false !== \strpos($image, '://') || 0 !== \strpos($image, '/lot/asset/');
             $_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['page']['lot']['fields']['lot']['image'] = [
                 'name' => 'page[' . $key . ']',
+                'pattern' => "^((https?:)?\\/\\/|data:image\\/(apng|avif|gif|jpeg|png|svg\\+xml|webp);base64,|\\/)[^\\/][^<>]*$",
                 'stack' => 15,
                 'title' => $title,
                 'type' => 'text',
@@ -95,18 +96,6 @@ function set($_) {
             (array) ($state->x->{'panel.image'}->guard->file->size ?? [])
         );
         $file = $folder . \D . ($name = \To::file($blob['name'] ?? ""));
-        // Remove the image link
-        if (!empty($blob['let'])) {
-            unset($_POST['page']['image']);
-            if (-2 === $blob['let'] && \is_file($file)) {
-                if (\unlink($file)) {
-                    $_['alert']['success'][$file] = ['%s %s successfully deleted.', ['Image', '<code>' . \x\panel\from\path($file) . '</code>']];
-                } else {
-                    $_['alert']['error'][$file] = ['Could not delete %s %s due to file system error.', ['image', '<code>' . \x\panel\from\path($file) . '</code>']];
-                }
-            }
-            return $_;
-        }
         if (!$name || !\is_string($name)) {
             $_['alert']['error'][$file] = 'The file you are about to upload doesn\'t seem to have a valid file name.';
             return $_;
@@ -149,7 +138,7 @@ function set($_) {
     }
     // Update the image link
     if (\is_string($blob)) {
-        if (0 === \strpos($blob, '//') || false !== \strpos($blob, '://')) {
+        if (0 === \strpos($blob, '//') || 0 === \strpos($blob, 'data:image/') || false !== \strpos($blob, '://')) {
             return $_; // Ignore external image link
         }
         if (!\is_file($file = \PATH . \strtr($blob, ['/' => \D]))) {
