@@ -5,11 +5,25 @@ function _($_) {
         \extract($GLOBALS, \EXTR_SKIP);
         $key = $state->x->{'panel.image'}->key ?? 'image';
         $title = $state->x->{'panel.image'}->title ?? 'Image';
+        $type = $_GET['image'] ?? null;
         $page = new \Page($_['file'] ?: null);
-        if ($image = $page[$key] ?? 0) {
+        $image = $page[$key] ?? "";
+        if (!\array_key_exists('image', $_GET)) {
+            if ($image) {
+                $type = 'link';
+            }
+        }
+        // Make `image` query to be unset by default
+        unset($_GET['image'], $GLOBALS['_']['query']['image'], $_['query']['image']);
+        if ('link' === $type) {
             $link = 0 === \strpos($image, '//') || 0 === \strpos($image, 'data:image/') || false !== \strpos($image, '://') || 0 !== \strpos($image, '/lot/asset/');
             $_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['page']['lot']['fields']['lot']['image'] = [
-                'icon' => ["", [
+                'description' => ['Paste an image link or %s to select an image file.', '<a href="' . \htmlspecialchars($url->query(['image' => 'blob'])) . '" onclick="return confirm(\'' . \i('This action will reload the page.') . '\');">' . i('click here') . '</a>'],
+                'hint' => \strtr(\strtr($state->x->{'panel.image'}->folder ?? '/lot/asset/user/' . $user->name, ['/' => \D]), [
+                    \PATH . \D => '/',
+                    \D => '/'
+                ]) . '/image.jpg',
+                'icon' => [null, $image && 'set' !== $_['task'] ? [
                     'd' => $link ? 'M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z' : 'M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19M8,9H16V19H8V9M15.5,4L14.5,3H9.5L8.5,4H5V6H19V4H15.5Z',
                     'description' => $link ? ['View %s', 'Image'] : ['Delete'],
                     'link' => $link ? $image : null,
@@ -23,17 +37,18 @@ function _($_) {
                         ],
                         'task' => 'let'
                     ]
-                ]],
+                ] : null],
                 'name' => 'page[' . $key . ']',
                 'pattern' => "^((https?:)?\\/\\/|data:image\\/(apng|avif|gif|jpeg|png|svg\\+xml|webp);base64,|\\/)[^\\/][^<>]*$",
                 'stack' => 15,
                 'title' => $title,
                 'type' => 'text',
-                'value' => $image,
+                'value' => "" !== $image ? $image : null,
                 'width' => true
             ];
-        } else {
+        } else /* if ('blob' === $type) */ {
             $_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['page']['lot']['fields']['lot']['image'] = [
+                'description' => ['Select an image file or %s to paste an image link.', '<a href="' . \htmlspecialchars($url->query(['image' => 'link'])) . '" onclick="return confirm(\'' . \i('This action will reload the page.') . '\');">' . i('click here') . '</a>'],
                 'name' => 'page[' . $key . ']',
                 'stack' => 15,
                 'title' => $title,
