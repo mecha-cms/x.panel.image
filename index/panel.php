@@ -9,29 +9,27 @@ function _($_) {
         if ($image = $page[$key] ?? 0) {
             $link = 0 === \strpos($image, '//') || 0 === \strpos($image, 'data:image/') || false !== \strpos($image, '://') || 0 !== \strpos($image, '/lot/asset/');
             $_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['page']['lot']['fields']['lot']['image'] = [
+                'icon' => ["", [
+                    'd' => $link ? 'M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z' : 'M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19M8,9H16V19H8V9M15.5,4L14.5,3H9.5L8.5,4H5V6H19V4H15.5Z',
+                    'description' => $link ? ['View %s', 'Image'] : ['Delete'],
+                    'link' => $link ? $image : null,
+                    'url' => $link ? null : [
+                        'part' => 0,
+                        'path' => \substr($image, \strlen('/lot/')),
+                        'query' => [
+                            'kick' => $url->current,
+                            'token' => $_['token'],
+                            'trash' => !empty($state->x->panel->trash) ? \date('Y-m-d-H-i-s') : null
+                        ],
+                        'task' => 'let'
+                    ]
+                ]],
                 'name' => 'page[' . $key . ']',
                 'pattern' => "^((https?:)?\\/\\/|data:image\\/(apng|avif|gif|jpeg|png|svg\\+xml|webp);base64,|\\/)[^\\/][^<>]*$",
                 'stack' => 15,
                 'title' => $title,
                 'type' => 'text',
                 'value' => $image,
-                'value-after' => [
-                    '2' => [
-                        'onclick' => $link ? 'window.open(' . \htmlspecialchars(\json_encode($image)) . ');' : 'window.location.href=' . \htmlspecialchars(\json_encode(\Hook::fire('link', [\x\panel\to\link([
-                            'part' => 0,
-                            'path' => \substr($image, \strlen('/lot/')),
-                            'query' => [
-                                'kick' => $url->current,
-                                'token' => $_['token'],
-                                'trash' => !empty($state->x->panel->trash) ? \date('Y-m-d-H-i-s') : null
-                            ],
-                            'task' => 'let'
-                        ])]))) . ';',
-                        'style' => 'cursor: pointer;',
-                        'tabindex' => 0
-                    ],
-                    'icon' => $link ? 'M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z' : 'M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19M8,9H16V19H8V9M15.5,4L14.5,3H9.5L8.5,4H5V6H19V4H15.5Z'
-                ],
                 'width' => true
             ];
         } else {
