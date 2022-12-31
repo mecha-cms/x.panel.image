@@ -1,8 +1,17 @@
 <?php namespace x\panel__image;
 
+if (!empty($state->x->{'panel.image'}->description)) {
+    $_['asset']['panel.image'] = [
+        'id' => false,
+        'path' => \stream_resolve_include_path(__DIR__ . \D . '..' . \D . 'index' . (\defined("\\TEST") && \TEST ? '.' : '.min.') . 'js'),
+        'stack' => 30
+    ];
+}
+
 function _($_) {
     if (0 === \strpos($_['type'] . '/', 'page/')) {
         \extract($GLOBALS, \EXTR_SKIP);
+        $description = $state->x->{'panel.image'}->description ?? true;
         $key = $state->x->{'panel.image'}->key ?? 'image';
         $title = $state->x->{'panel.image'}->title ?? 'Image';
         $type = $_GET['image'] ?? null;
@@ -18,14 +27,14 @@ function _($_) {
         if ('link' === $type) {
             $link = 0 === \strpos($image, '//') || 0 === \strpos($image, 'data:image/') || false !== \strpos($image, '://') || 0 !== \strpos($image, '/lot/asset/');
             $_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['page']['lot']['fields']['lot']['image'] = [
-                'description' => ['Paste an image link or %s to select an image file.', '<a href="' . \htmlspecialchars($url->query(['image' => 'blob'])) . '" onclick="return confirm(\'' . \i('This action will reload the page.') . '\');">' . i('click here') . '</a>'],
+                'description' => \is_array($description) || \is_string($description) ? $description : ($description ? ['Paste an image link or %s to select an image file.', '<a aria-description="' . \htmlspecialchars(\i('This action will reload the page.')) . '" href="' . \htmlspecialchars($url->query(['image' => 'blob'])) . '">' . i('click here') . '</a>'] : null),
                 'hint' => \strtr(\strtr($state->x->{'panel.image'}->folder ?? '/lot/asset/user/' . $user->name, ['/' => \D]), [
                     \PATH . \D => '/',
                     \D => '/'
                 ]) . '/image.jpg',
                 'icon' => [null, $image && 'set' !== $_['task'] ? [
                     'd' => $link ? 'M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z' : 'M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19M8,9H16V19H8V9M15.5,4L14.5,3H9.5L8.5,4H5V6H19V4H15.5Z',
-                    'description' => $link ? ['View %s', 'Image'] : ['Delete'],
+                    'description' => $link ? 'View' : 'Delete',
                     'link' => $link ? $image : null,
                     'url' => $link ? null : [
                         'part' => 0,
@@ -39,16 +48,16 @@ function _($_) {
                     ]
                 ] : null],
                 'name' => 'page[' . $key . ']',
-                'pattern' => "^((https?:)?\\/\\/|data:image\\/(apng|avif|gif|jpeg|png|svg\\+xml|webp);base64,|\\/)[^\\/][^<>]*$",
+                'pattern' => "^(data:image/(apng|avif|gif|jpeg|png|svg\\+xml|webp);base64,|(https?:)?\\/\\/|[.]{0,2}\\/)[^\\/]\\S*$",
                 'stack' => 15,
                 'title' => $title,
-                'type' => 'text',
+                'type' => 'u-r-l',
                 'value' => "" !== $image ? $image : null,
                 'width' => true
             ];
         } else /* if ('blob' === $type) */ {
             $_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['page']['lot']['fields']['lot']['image'] = [
-                'description' => ['Select an image file or %s to paste an image link.', '<a href="' . \htmlspecialchars($url->query(['image' => 'link'])) . '" onclick="return confirm(\'' . \i('This action will reload the page.') . '\');">' . i('click here') . '</a>'],
+                'description' => \is_array($description) || \is_string($description) ? $description : ($description ? ['Select an image file or %s to paste an image link.', '<a aria-description="' . \htmlspecialchars(\i('This action will reload the page.')) . '" href="' . \htmlspecialchars($url->query(['image' => 'link'])) . '">' . i('click here') . '</a>'] : null),
                 'name' => 'page[' . $key . ']',
                 'stack' => 15,
                 'title' => $title,
@@ -102,18 +111,20 @@ function set($_) {
         return $_;
     }
     // Upload an image
-    if (is_array($blob)) {
+    if (\is_array($blob)) {
         [$min, $max] = \array_replace(
             [0, 0],
             (array) ($state->x->panel->guard->file->size ?? []),
             (array) ($state->x->{'panel.image'}->guard->file->size ?? [])
         );
-        $file = $folder . \D . ($name = \To::file($blob['name'] ?? ""));
+        $n = $state->x->{'panel.image'}->name ?? "";
+        $name = \To::file($blob['name'] ?? "");
         if (!$name || !\is_string($name)) {
-            $_['alert']['error'][$file] = 'The file you are about to upload doesn\'t seem to have a valid file name.';
+            $_['alert']['error'][$folder] = 'The file you are about to upload doesn\'t seem to have a valid file name.';
             return $_;
         }
-        if (\is_file($file)) {
+        $x = \pathinfo($name, \PATHINFO_EXTENSION);
+        if (\is_file($file = $folder . \D . ($name = $n ? $n . '.' . $x : $name))) {
             $_['alert']['info'][$file] = ['%s %s already exists.', ['Image', '<code>' . \x\panel\from\path($file) . '</code>']];
             $_POST['page'][$key] = \strtr($file, [
                 \PATH . \D => '/',
@@ -121,7 +132,6 @@ function set($_) {
             ]);
             return $_;
         }
-        $x = \pathinfo($name, \PATHINFO_EXTENSION);
         if (false === \strpos(',apng,avif,gif,jpeg,jpg,png,svg,webp,', ',' . $x . ',')) {
             $_['alert']['error'][$file] = ['%s extension %s is not allowed.', ['Image', '<code>' . $x . '</code>']];
             return $_;

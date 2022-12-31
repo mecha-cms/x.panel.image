@@ -1,0 +1,18 @@
+{
+  "dependencies": {
+    "@taufik-nurrohman/document": "*",
+    "@taufik-nurrohman/event": "*",
+    "@taufik-nurrohman/from": "*",
+    "@taufik-nurrohman/hook": "*",
+    "@taufik-nurrohman/is": "*",
+    "@taufik-nurrohman/to": "*"
+  },
+  "devDependencies": {
+    "@taufik-nurrohman/factory": "*"
+  },
+  "private": true,
+  "scripts": {
+    "pack": "pack --clean=false --from=.factory --js-format=iife --to=."
+  },
+  "type": "module"
+}

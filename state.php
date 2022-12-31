@@ -1,10 +1,14 @@
 <?php
 
 return [
-    // Set custom image folder path as upload target
+    // Set custom image field description
+    'description' => true,
+    // Set custom image folder path as file upload target
     'folder' => null,
-    // Set custom image key for page data
+    // Set custom image data key for page file
     'key' => 'image',
-    // Set custom image title for field title
+    // Set custom image file name (without the extension)
+    'name' => null,
+    // Set custom image field title
     'title' => 'Image'
 ];
