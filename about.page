@@ -40,9 +40,28 @@ State::set("x.panel\\.image.key", 'cover');
 // Store the image file to `'.\lot\asset\photos'` folder
 State::set("x.panel\\.image.folder", LOT . D . 'asset' . D . 'photos');
 
-// Store the image file to `'.\lot\asset\2022\12\31'` folder (assuming today is 2022-12-31)
+// Store the image file to `'.\lot\asset\2023\01\04'` folder (assuming today is 2022-01-04)
 State::set("x.panel\\.image.folder", LOT . D . 'asset' . D . date('Y/m/d'));
 
-// Store the image file as `'2022-12-31.jpg'` (assuming today is 2022-12-31 and the image file extension is `'jpg'`)
+// Store the image file as `'2022-01-04.jpg'` (assuming today is 2022-01-04 and the image file extension is `'jpg'`)
 State::set("x.panel\\.image.name", date('Y-m-d'));
+
+// Force user to fill out the image field to be able to submit the form
+State::set("x.panel\\.image.vital", true);
+
+// Disable the image field when user is on the tag page
+if (0 === strpos($_['path'] . '/', 'tag/')) {
+    State::set("x.panel\\.image.active", false);
+}
+
+// Remove the image field when user is on the tag page
+if (0 === strpos($_['path'] . '/', 'tag/')) {
+    State::set("x.panel\\.image.skip", true);
+}
+
+// Store the image link as `'avatar'` data when user is on the user page
+if (0 === strpos($_['path'] . '/', 'user/')) {
+    State::set("x.panel\\.image.key", 'avatar');
+    State::set("x.panel\\.image.title", 'Avatar');
+}
 ~~~
