@@ -83,7 +83,7 @@ function get($_) {
         \extract($GLOBALS, \EXTR_SKIP);
         $key = $state->x->{'panel.image'}->key ?? 'image';
         $page = \From::page(\file_get_contents($_['file']), false);
-        if ($blob = $page[$key] ?? 0) {
+        if ($blob = $page[$key] ?? "") {
             if (0 === \strpos($blob, '//') || false !== \strpos($blob, '://')) {
                 return $_; // Ignore external image link
             }
