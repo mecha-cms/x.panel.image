@@ -90,7 +90,6 @@
         }
         node.addEventListener(name, then, options);
     };
-    var toggles = getElements('.description a[aria-description]:where([href*="?image="],[href*="&image="])');
 
     function onClickConfirm(toggle) {
         onEvent('click', toggle, function (e) {
@@ -103,5 +102,11 @@
             offEventDefault(e);
         });
     }
-    toCount(toggles) && toggles.forEach(onClickConfirm);
+
+    function onChange() {
+        var toggles = getElements('.description a[aria-description]:where([href*="?image="],[href*="&image="])');
+        toCount(toggles) && toggles.forEach(onClickConfirm);
+    }
+    onChange();
+    _.on('change', onChange);
 })();

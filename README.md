@@ -1,5 +1,5 @@
-Featured Image Extension for Mecha&rsquo;s [Panel](https://github.com/mecha-cms/mecha)
-======================================================================================
+Featured Image Extension for Mecha&rsquo;s [Panel](https://github.com/mecha-cms/x.panel)
+========================================================================================
 
 ![Code Size](https://img.shields.io/github/languages/code-size/mecha-cms/x.panel.image?color=%23444&style=for-the-badge)
 
