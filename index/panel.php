@@ -202,8 +202,37 @@ function set($_) {
     if (isset($_['lot']['bar']['lot'][0]['lot']['folder']['lot']['image'])) {
         $_['lot']['bar']['lot'][0]['lot']['folder']['lot']['image']['icon'] = 'M21,17H7V3H21M21,1H7A2,2 0 0,0 5,3V17A2,2 0 0,0 7,19H21A2,2 0 0,0 23,17V3A2,2 0 0,0 21,1M3,5H1V21A2,2 0 0,0 3,23H19V21H3M15.96,10.29L13.21,13.83L11.25,11.47L8.5,15H19.5L15.96,10.29Z';
     }
+    \extract($GLOBALS, \EXTR_SKIP);
+    $x_image = isset($state->x->image);
+    if (0 === \strpos($_['path'] . '/', 'image/')) {
+        if (isset($_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['files'])) {
+            $_['lot']['desk']['lot']['form']['lot'][0]['title'] = 'Image';
+            $_['lot']['desk']['lot']['form']['lot'][0]['description'] = 'This folder is intended to store image files only. Images in this folder cannot be accessed directly.';
+        }
+        if (
+            !empty($_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['files']['lot']['files']['lot']) &&
+            !empty($_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['files']['lot']['files']['type']) &&
+            'files' === $_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['files']['lot']['files']['type']
+        ) {
+            $route = \trim($state->x->image->route ?? 'image', '/');
+            foreach ($_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['files']['lot']['files']['lot'] as $k => &$v) {
+                if (\is_file($k) && \is_string($v['link']) && 0 === \strpos($v['link'], $url . '/lot/image/')) {
+                    $v['tasks']['proxy'] = [
+                        'active' => $x_image,
+                        'description' => 'View image via proxy link',
+                        'icon' => 'M19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M19,19H5V5H19V19M11,16H10C8.39,16 6,14.94 6,12C6,9.07 8.39,8 10,8H11V10H10C9.54,10 8,10.17 8,12C8,13.9 9.67,14 10,14H11V16M14,16H13V14H14C14.46,14 16,13.83 16,12C16,10.1 14.33,10 14,10H13V8H14C15.61,8 18,9.07 18,12C18,14.94 15.61,16 14,16M15,13H9V11H15V13Z',
+                        'link' => \substr_replace($v['link'], $url . '/' . $route . '/', 0, \strlen($url . '/lot/image/')),
+                        'stack' => 10.1,
+                        'title' => false,
+                        'type' => 'link'
+                    ];
+                }
+            }
+            unset($v);
+        }
+    }
     return $_;
-}, 0);
+}, 10.1);
 
 \Hook::set('_', __NAMESPACE__ . "\\_", 20);
 \Hook::set('do.page.get', __NAMESPACE__ . "\\get", 0);
