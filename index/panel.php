@@ -205,9 +205,17 @@ function set($_) {
     \extract($GLOBALS, \EXTR_SKIP);
     $x_image = isset($state->x->image);
     if (0 === \strpos($_['path'] . '/', 'image/')) {
+        // $_['lot']['desk']['lot']['form']['lot'][0]['lot']['tasks']['lot']['blob']['url']['query']['type'] = 'blob/image';
+        $_['lot']['desk']['lot']['form']['lot'][0]['lot']['tasks']['lot']['file']['skip'] = true; // Disable file button
         if (isset($_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['files'])) {
             $_['lot']['desk']['lot']['form']['lot'][0]['title'] = 'Image';
-            $_['lot']['desk']['lot']['form']['lot'][0]['description'] = 'This folder is intended to store image files only. Images in this folder cannot be accessed directly.';
+            $_['lot']['desk']['lot']['form']['lot'][0]['description'] = ['This folder is intended to store image files only. They cannot be accessed directly due to the default folder permissions. You can make a proxy to allow people to access them, or you can store them into %s instead.', '<a href="' . \x\panel\to\link([
+                'hash' => null,
+                'part' => 1,
+                'path' => 'asset',
+                'query' => null,
+                'task' => 'get'
+            ]) . '">this folder</a>'];
         }
         if (
             !empty($_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['files']['lot']['files']['lot']) &&
@@ -217,13 +225,14 @@ function set($_) {
             $route = \trim($state->x->image->route ?? 'image', '/');
             foreach ($_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['files']['lot']['files']['lot'] as $k => &$v) {
                 if (\is_file($k) && \is_string($v['link']) && 0 === \strpos($v['link'], $url . '/lot/image/')) {
+                    $is_image = false !== \strpos(',apng,avif,bmp,gif,jpeg,jpg,png,webp,xbm,xpm,', ',' . \pathinfo($v['link'], \PATHINFO_EXTENSION) . ',');
                     $v['tasks']['proxy'] = [
-                        'active' => $x_image,
+                        'active' => $is_image && $x_image,
                         'description' => 'View image via proxy link',
                         'icon' => 'M19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M19,19H5V5H19V19M11,16H10C8.39,16 6,14.94 6,12C6,9.07 8.39,8 10,8H11V10H10C9.54,10 8,10.17 8,12C8,13.9 9.67,14 10,14H11V16M14,16H13V14H14C14.46,14 16,13.83 16,12C16,10.1 14.33,10 14,10H13V8H14C15.61,8 18,9.07 18,12C18,14.94 15.61,16 14,16M15,13H9V11H15V13Z',
                         'link' => \substr_replace($v['link'], $url . '/' . $route . '/', 0, \strlen($url . '/lot/image/')),
                         'stack' => 10.1,
-                        'title' => false,
+                        'title' => 'View',
                         'type' => 'link'
                     ];
                 }
