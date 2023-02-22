@@ -209,7 +209,7 @@ function set($_) {
         $_['lot']['desk']['lot']['form']['lot'][0]['lot']['tasks']['lot']['file']['skip'] = true; // Disable file button
         if (isset($_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['files'])) {
             $_['lot']['desk']['lot']['form']['lot'][0]['title'] = 'Image';
-            $_['lot']['desk']['lot']['form']['lot'][0]['description'] = ['This folder is intended to store image files only. They cannot be accessed directly due to the default folder permissions. You can make a proxy to allow people to access them, or you can store them into %s instead.', '<a href="' . \x\panel\to\link([
+            $_['lot']['desk']['lot']['form']['lot'][0]['description'] = ['This folder is intended to store image files only. They cannot be accessed directly due to the default folder permissions. You can make a proxy to allow people to access them, or you can store them in %s instead.', '<a href="' . \x\panel\to\link([
                 'hash' => null,
                 'part' => 1,
                 'path' => 'asset',
