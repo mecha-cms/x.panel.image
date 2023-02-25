@@ -65,4 +65,18 @@ if (0 === strpos($_['path'] . '/', 'user/')) {
     State::set("x.panel\\.image.key", 'avatar');
     State::set("x.panel\\.image.title", 'Avatar');
 }
+
+// Set image maximum width to be exactly 1024 pixels and maximum height to be exactly 768 pixels
+// If one of the two exceeds the maximum limit, image cropping task will be performed
+State::set("x.panel\\.image.height", 768);
+State::set("x.panel\\.image.width", 1024);
+
+// Set image maximum width and height to be 1024 pixels
+State::set("x.panel\\.image.fit", 1024);
+
+// Set image maximum width to be 1024 pixels and image maximum height to be 768 pixels
+State::set("x.panel\\.image.fit", [1024, 768]); // … or `['height' => 768, 'width' => 1024]`
+
+// Force to store the image as PNG
+State::set("x.panel\\.image.x", 'png');
 ~~~

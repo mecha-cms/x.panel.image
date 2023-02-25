@@ -16,5 +16,10 @@ return [
     // Set custom image field title
     'title' => 'Image',
     // Force user to fill out the image field to be able to submit the form
-    'vital' => false
+    'vital' => false,
+    // These option(s) apply when the `image` extension is active
+    'fit' => null, // Set maximum image height and width to make sure that the new width and height will not overflow the maximum width and height
+    'height' => null, // Set maximum image height
+    'width' => null, // Set maximum image width
+    'x' => null // Convert image type by its file extension
 ];

@@ -20,6 +20,7 @@ function _($_) {
         $vital = !empty($state->x->{'panel.image'}->vital);
         $page = new \Page($_['file'] ?: null);
         $image = $page[$key] ?? "";
+        $file = $image && \is_file($f = \To::path(\PATH . $image)) ? $f : false;
         if (!\array_key_exists('image', $_GET)) {
             if ($image) {
                 $type = 'link';
@@ -31,7 +32,33 @@ function _($_) {
             $link = 0 === \strpos($image, '//') || 0 === \strpos($image, 'data:image/') || false !== \strpos($image, '://') || 0 !== \strpos($image, '/lot/asset/');
             $_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['page']['lot']['fields']['lot']['image'] = [
                 'active' => $active,
-                'description' => \is_array($description) || \is_string($description) ? $description : ($description ? ['Paste an image link or %s to select an image file.', '<a aria-description="' . \htmlspecialchars(\i('This action will reload the page.')) . '" href="' . \htmlspecialchars($url->query(['image' => 'blob'])) . '">' . i('click here') . '</a>'] : null),
+                'description' => \is_array($description) || \is_string($description) ? $description : ($description ? ['Paste an image link or %s to select an image file.', '<a aria-description="' . \htmlspecialchars(\i('This action will reload the page.')) . '" href="' . \htmlspecialchars($url->query(['image' => 'blob'])) . '">' . \i('click here') . '</a>'] : null),
+                'field-exit' => $image && isset($state->x->image) ? '
+<table>
+  <tbody>
+    <tr>
+      <td rowspan="4" style="padding: 0; width: calc(((calc(var(--y) / 4) * 6) * 3) + 4px);">
+        <img alt="" height="111" src="' . $page->{$key}(111, 111, 100) . ($file ? '?v=' . \filemtime($file) : "") . '" style="display: block; height: 100%; width: 100%;" width="111">
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>' . \i('Name') . ':</b> <a href="' . \long($image ?: $page->{$key}) . '" target="_blank">' . ($file ? \basename($image) : \i('Unknown')) . '</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>' . \i('Size') . ':</b> ' . ($file ? \image($file)->size : \i('Unknown')) . '
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>' . \i('Type') . ':</b> ' . ($file ? \image($file)->type : \i('Unknown')) . '
+      </td>
+    </tr>
+  </tbody>
+</table>
+' : null,
                 'hint' => \strtr(\strtr($state->x->{'panel.image'}->folder ?? '/lot/asset/user/' . $user->name, ['/' => \D]), [
                     \PATH . \D => '/',
                     \D => '/'
@@ -62,9 +89,40 @@ function _($_) {
                 'width' => true
             ];
         } else /* if ('blob' === $type) */ {
+            if (isset($_['lot']['desk']['lot']['form']) && isset($state->x->image)) {
+                foreach (['fit', 'height', 'width', 'x'] as $v) {
+                    $_['lot']['desk']['lot']['form']['values']['page'][$key][$v] = $state->x->{'panel.image'}->{$v} ?? null;
+                }
+            }
             $_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['page']['lot']['fields']['lot']['image'] = [
                 'active' => $active,
-                'description' => \is_array($description) || \is_string($description) ? $description : ($description ? ['Select an image file or %s to paste an image link.', '<a aria-description="' . \htmlspecialchars(\i('This action will reload the page.')) . '" href="' . \htmlspecialchars($url->query(['image' => 'link'])) . '">' . i('click here') . '</a>'] : null),
+                'description' => \is_array($description) || \is_string($description) ? $description : ($description ? ['Select an image file or %s to paste an image link.', '<a aria-description="' . \htmlspecialchars(\i('This action will reload the page.')) . '" href="' . \htmlspecialchars($url->query(['image' => 'link'])) . '">' . \i('click here') . '</a>'] : null),
+                'field-exit' => $image && isset($state->x->image) ? '
+<table>
+  <tbody>
+    <tr>
+      <td rowspan="4" style="padding: 0; width: calc(((calc(var(--y) / 4) * 6) * 3) + 4px);">
+        <img alt="" height="111" src="' . $page->{$key}(111, 111, 100) . ($file ? '?v=' . \filemtime($file) : "") . '" style="display: block; height: 100%; width: 100%;" width="111">
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>' . \i('Name') . ':</b> <a href="' . \long($image ?: $page->{$key}) . '" target="_blank">' . ($file ? \basename($image) : \i('Unknown')) . '</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>' . \i('Size') . ':</b> ' . ($file ? \image($file)->size : \i('Unknown')) . '
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>' . \i('Type') . ':</b> ' . ($file ? \image($file)->type : \i('Unknown')) . '
+      </td>
+    </tr>
+  </tbody>
+</table>
+' : null,
                 'name' => 'page[' . $key . ']',
                 'skip' => $skip,
                 'stack' => 15,
@@ -82,8 +140,8 @@ function get($_) {
     if ('GET' === $_SERVER['REQUEST_METHOD'] && $_['file']) {
         \extract($GLOBALS, \EXTR_SKIP);
         $key = $state->x->{'panel.image'}->key ?? 'image';
-        $page = \From::page(\file_get_contents($_['file']), false);
-        if ($blob = $page[$key] ?? "") {
+        $page = \From::page(\file_get_contents($_['file']), true);
+        if ($blob = (string) ($page[$key] ?? "")) {
             if (0 === \strpos($blob, '//') || false !== \strpos($blob, '://')) {
                 return $_; // Ignore external image link
             }
@@ -178,8 +236,41 @@ function set($_) {
             $_['alert']['error'][$file] = 'Failed to upload with status code: ' . \s($status);
             return $_;
         }
-        $_['alert']['success'][$file] = ['File %s successfully uploaded.', '<code>' . \x\panel\from\path($status) . '</code>'];
-        $_POST['page'][$key] = \strtr($status, [
+        if (isset($state->x->image)) {
+            $image = new \Image($file);
+            // Prioritize `Image::fit()` over `Image::crop()`
+            if (isset($blob['fit']) && (\is_array($blob['fit']) || \is_int($blob['fit']))) {
+                if (\is_int($blob['fit'])) {
+                    $blob['fit'] = [$blob['fit'], $blob['fit']];
+                } else if (isset($blob['fit'][0]) && \is_int($blob['fit'][0]) || isset($blob['fit']['width']) && \is_int($blob['fit']['width'])) {
+                    if (!isset($blob['fit'][1]) || !\is_int($blob['fit'][1])) {
+                        $blob['fit']['height'] = $blob['fit'][0] ?? $blob['fit']['width'];
+                    }
+                    if (!isset($blob['fit']['height']) || !\is_int($blob['fit']['height'])) {
+                        $blob['fit']['height'] = $blob['fit'][0] ?? $blob['fit']['width'];
+                    }
+                }
+                $image->fit($blob['fit'][0] ?? $blob['fit']['width'], $blob['fit'][1] ?? $blob['fit']['height']);
+            } else if (isset($blob['width']) && \is_int($blob['width'])) {
+                if (!isset($blob['height']) || !\is_int($blob['height'])) {
+                    $blob['height'] = $blob['width'];
+                }
+                $image->crop($blob['width'], $blob['height']);
+            }
+            try {
+                $folder = \dirname($file);
+                $name = \pathinfo($file, \PATHINFO_FILENAME);
+                $x = isset($blob['x']) && \is_string($blob['x']) ? $blob['x'] : \pathinfo($file, \PATHINFO_EXTENSION);
+                $image->blob($store = $folder . \D . '~' . $name . '.' . $x, 100);
+                if (!\rename($folder . \D . '~' . $name . '.' . $x, $folder . \D . $name . '.' . $x)) {
+                    $_['alert']['error'][$store] = 'Could not rename the modified image file due to file system error.';
+                }
+            } catch (\Throwable $e) {
+                $_['alert']['error'][$file] = (string) $e;
+            }
+        }
+        $_['alert']['success'][$file] = ['File %s successfully uploaded.', '<code>' . \x\panel\from\path($file) . '</code>'];
+        $_POST['page'][$key] = \strtr($file, [
             \PATH . \D => '/',
             \D => '/'
         ]);
