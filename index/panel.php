@@ -1,5 +1,7 @@
 <?php namespace x\panel__image;
 
+require __DIR__ . \D . '..' . \D . 'engine' . \D . 'f.php';
+
 if (!empty($state->x->{'panel.image'}->description)) {
     $_['asset']['panel.image'] = [
         'id' => false,
@@ -9,128 +11,83 @@ if (!empty($state->x->{'panel.image'}->description)) {
 }
 
 function _($_) {
+    if (0 === \strpos($_['type'] . '/', 'blob/image/')) {
+        if (isset($_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['blob']['lot']['fields']['lot']['blob'])) {
+            $_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['blob']['lot']['fields']['lot']['blob']['title'] = 'Image';
+        }
+        unset($_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['blob']['lot']['fields']['lot']['options']['lot']['extract']);
+        if (empty($_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['blob']['lot']['fields']['lot']['options']['lot'])) {
+            unset($_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['blob']['lot']['fields']['lot']['options']);
+        }
+        return $_;
+    }
     if (0 === \strpos($_['type'] . '/', 'page/')) {
         \extract($GLOBALS, \EXTR_SKIP);
+        $page = new \Page($_['file'] ?: null);
         $active = !isset($state->x->{'panel.image'}->active) || $state->x->{'panel.image'}->active;
         $description = $state->x->{'panel.image'}->description ?? true;
-        $key = $state->x->{'panel.image'}->key ?? 'image';
+        $image = $page[$key = $state->x->{'panel.image'}->key ?? 'image'] ?? "";
+        $link = 0 === \strpos($image, '//') || 0 === \strpos($image, 'data:image/') || false !== \strpos($image, '://');
         $skip = !empty($state->x->{'panel.image'}->skip);
         $title = $state->x->{'panel.image'}->title ?? 'Image';
-        $type = $_GET['image'] ?? null;
+        $type = $_['query']['image'] ?? null;
         $vital = !empty($state->x->{'panel.image'}->vital);
-        $page = new \Page($_['file'] ?: null);
-        $image = $page[$key] ?? "";
-        $file = $image && \is_file($f = \To::path(\PATH . $image)) ? $f : false;
-        if (!\array_key_exists('image', $_GET)) {
-            if ($image) {
-                $type = 'link';
+        $file = $image && !$link && \is_file($f = \PATH . $image) ? \path($f) : false;
+        if ($image && !\array_key_exists('image', (array) ($_['query'] ?? []))) {
+            $type = 'link';
+        }
+        // Set default field description if `description` value is truthy but not translate-able
+        if ($description && !\is_array($description) && !\is_string($description)) {
+            if ('link' === $type) {
+                $description = ['Paste an image link or %s to select an image file.', '<a aria-description="' . \eat(\i('This action will reload the page.')) . '" href="' . \eat($url->query(['image' => 'blob'])) . '">' . \i('click here') . '</a>'];
+            } else {
+                $description = ['Select an image file or %s to paste an image link.', '<a aria-description="' . \eat(\i('This action will reload the page.')) . '" href="' . \eat($url->query(['image' => 'link'])) . '">' . \i('click here') . '</a>'];
             }
         }
-        // Make `image` query to be unset by default
-        unset($_GET['image'], $GLOBALS['_']['query']['image'], $_['query']['image']);
-        if ('link' === $type) {
-            $link = 0 === \strpos($image, '//') || 0 === \strpos($image, 'data:image/') || false !== \strpos($image, '://') || 0 !== \strpos($image, '/lot/asset/');
-            $_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['page']['lot']['fields']['lot']['image'] = [
-                'active' => $active,
-                'description' => \is_array($description) || \is_string($description) ? $description : ($description ? ['Paste an image link or %s to select an image file.', '<a aria-description="' . \htmlspecialchars(\i('This action will reload the page.')) . '" href="' . \htmlspecialchars($url->query(['image' => 'blob'])) . '">' . \i('click here') . '</a>'] : null),
-                'field-exit' => $image && isset($state->x->image) ? '
-<table>
-  <tbody>
-    <tr>
-      <td rowspan="4" style="padding: 0; width: calc(((calc(var(--y) / 4) * 6) * 3) + 4px);">
-        <img alt="" height="111" src="' . $page->{$key}(111, 111, 100) . ($file ? '?v=' . \filemtime($file) : "") . '" style="display: block; height: 100%; width: 100%;" width="111">
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>' . \i('Name') . ':</b> <a href="' . \long($image ?: $page->{$key}) . '" target="_blank">' . ($file ? \basename($image) : \i('Unknown')) . '</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>' . \i('Size') . ':</b> ' . ($file ? \image($file)->size : \i('Unknown')) . '
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>' . \i('Type') . ':</b> ' . ($file ? \image($file)->type : \i('Unknown')) . '
-      </td>
-    </tr>
-  </tbody>
-</table>
-' : null,
-                'hint' => \strtr(\strtr($state->x->{'panel.image'}->folder ?? '/lot/asset/user/' . $user->name, ['/' => \D]), [
-                    \PATH . \D => '/',
-                    \D => '/'
-                ]) . '/image.jpg',
-                'icon' => [null, $image && 'set' !== $_['task'] ? [
-                    'd' => $link || $vital ? 'M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z' : 'M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19M8,9H16V19H8V9M15.5,4L14.5,3H9.5L8.5,4H5V6H19V4H15.5Z',
-                    'description' => $link || $vital ? 'View' : 'Delete',
-                    'link' => $link || $vital ? $image : null,
-                    'url' => $link || $vital ? null : [
-                        'part' => 0,
-                        'path' => \substr($image, \strlen('/lot/')),
-                        'query' => [
-                            'kick' => $url->current,
-                            'token' => $_['token'],
-                            'trash' => !empty($state->x->panel->trash) ? \date('Y-m-d-H-i-s') : null
-                        ],
-                        'task' => 'let'
-                    ]
-                ] : null],
-                'name' => 'page[' . $key . ']',
-                'pattern' => "^(data:image/(apng|avif|gif|jpeg|png|svg\\+xml|webp);base64,|(https?:)?\\/\\/|[.]{0,2}\\/)[^\\/]\\S*$",
-                'skip' => $skip,
-                'stack' => 15,
-                'title' => $title,
-                'type' => 'u-r-l',
-                'value' => "" !== $image ? $image : null,
-                'vital' => $vital,
-                'width' => true
-            ];
-        } else /* if ('blob' === $type) */ {
+        $_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['page']['lot']['fields']['lot']['image'] = [
+            'active' => $active,
+            'description' => $description,
+            'file' => $_['file'] ?: null,
+            'key' => $key,
+            'name' => 'page[' . $key . ']',
+            'skip' => $skip,
+            'stack' => 15,
+            'title' => $title,
+            'type' => \trim('image/' . ($type ?? ""), '/'),
+            'value' => "" !== $image ? $image : null,
+            'vital' => $vital,
+            'width' => true
+        ];
+        if ('link' !== $type) {
             if (isset($_['lot']['desk']['lot']['form']) && isset($state->x->image)) {
                 foreach (['fit', 'height', 'width', 'x'] as $v) {
                     $_['lot']['desk']['lot']['form']['values']['page'][$key][$v] = $state->x->{'panel.image'}->{$v} ?? null;
                 }
             }
-            $_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['page']['lot']['fields']['lot']['image'] = [
-                'active' => $active,
-                'description' => \is_array($description) || \is_string($description) ? $description : ($description ? ['Select an image file or %s to paste an image link.', '<a aria-description="' . \htmlspecialchars(\i('This action will reload the page.')) . '" href="' . \htmlspecialchars($url->query(['image' => 'link'])) . '">' . \i('click here') . '</a>'] : null),
-                'field-exit' => $image && isset($state->x->image) ? '
-<table>
-  <tbody>
-    <tr>
-      <td rowspan="4" style="padding: 0; width: calc(((calc(var(--y) / 4) * 6) * 3) + 4px);">
-        <img alt="" height="111" src="' . $page->{$key}(111, 111, 100) . ($file ? '?v=' . \filemtime($file) : "") . '" style="display: block; height: 100%; width: 100%;" width="111">
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>' . \i('Name') . ':</b> <a href="' . \long($image ?: $page->{$key}) . '" target="_blank">' . ($file ? \basename($image) : \i('Unknown')) . '</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>' . \i('Size') . ':</b> ' . ($file ? \image($file)->size : \i('Unknown')) . '
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>' . \i('Type') . ':</b> ' . ($file ? \image($file)->type : \i('Unknown')) . '
-      </td>
-    </tr>
-  </tbody>
-</table>
-' : null,
-                'name' => 'page[' . $key . ']',
-                'skip' => $skip,
-                'stack' => 15,
-                'title' => $title,
-                'type' => 'blob',
-                'vital' => $vital,
-                'width' => true
-            ];
+        }
+        // Make `image` query to be unset by default
+        unset($_GET['image'], $GLOBALS['_']['query']['image'], $_['query']['image']);
+    }
+    return $_;
+}
+
+function blob($_) {
+    if ('POST' !== $_SERVER['REQUEST_METHOD']) {
+        return $_;
+    }
+    $folder = $_['folder'] ?? "";
+    if (isset($_POST['blobs']) && \is_array($_POST['blobs'])) {
+        foreach ($_POST['blobs'] as $k => $v) {
+            if (!empty($v['status'])) {
+                continue;
+            }
+            $x = \pathinfo($v['name'], \PATHINFO_EXTENSION);
+            // Allow image file(s) only
+            if (false === \strpos(',apng,avif,bmp,gif,jpeg,jpg,png,svg,webp,xbm,xpm,', ',' . $x . ',')) {
+                $_['alert']['error'][$folder ?: \uniqid()] = 'Please upload image files only.';
+            } else if (!isset($v['type']) || 0 !== \strpos($v['type'], 'image/')) {
+                $_['alert']['error'][$folder ?: \uniqid()] = 'Please upload image files only.';
+            }
         }
     }
     return $_;
@@ -216,8 +173,8 @@ function set($_) {
             ]);
             return $_;
         }
-        if (false === \strpos(',apng,avif,gif,jpeg,jpg,png,svg,webp,', ',' . $x . ',')) {
-            $_['alert']['error'][$file] = ['File extension %s is not allowed.', '<code>' . $x . '</code>'];
+        if (false === \strpos(',apng,avif,bmp,gif,jpeg,jpg,png,svg,webp,xbm,xpm,', ',' . $x . ',')) {
+            $_['alert']['error'][$file] = 'Please upload an image.';
             return $_;
         }
         if (!isset($blob['type']) || 0 !== \strpos($blob['type'], 'image/')) {
@@ -236,7 +193,8 @@ function set($_) {
             $_['alert']['error'][$file] = 'Failed to upload with status code: ' . \s($status);
             return $_;
         }
-        if (isset($state->x->image)) {
+        // Allow to manipulate the image file if the feature is available and it supports the image format
+        if (isset($state->x->image) && \is_callable("\\x\\image\\from\\" . $x)) {
             $image = new \Image($file);
             // Prioritize `Image::fit()` over `Image::crop()`
             if (isset($blob['fit']) && (\is_array($blob['fit']) || \is_int($blob['fit']))) {
@@ -295,8 +253,99 @@ function set($_) {
     }
     \extract($GLOBALS, \EXTR_SKIP);
     $x_image = isset($state->x->image);
+    $file = $_['file'] ?? \P;
+    $route = \trim($state->x->image->route ?? 'image', '/');
+    $x = \pathinfo($file, \PATHINFO_EXTENSION);
+    if (\is_file($file) && false !== \strpos(',apng,avif,bmp,gif,jpeg,jpg,png,svg,webp,xbm,xpm,', ',' . $x . ',')) {
+        if (0 === \strpos($_['type'] . '/', 'file/') && isset($_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['file']['lot']['fields'])) {
+            $link = \To::URL($file);
+            if (0 === \strpos($link, $url . '/lot/image/')) {
+                // Convert to proxy URL
+                $link = \substr_replace($link, $url . '/' . $route . '/', 0, \strlen($url . '/lot/image/'));
+            }
+            $content = "";
+            $content .= '<figure class="figure">';
+            $content .= '<a href="' . \eat($link) . '" target="_blank" title="' . \eat(\i('Open in new window')) . '">';
+            $content .= '<img alt="' . \eat(\i('Loading...')) . '" src="' . \eat($link) . '?v=' . \filemtime($file) . '">';
+            $content .= '</a>';
+            $content .= '</figure>';
+            $info = (array) \getimagesize($file);
+            $data = [
+                'Height' => $info[1] ?? null,
+                'Name' => \basename($file),
+                'Size' => \size(\filesize($file)),
+                'Type' => $info['mime'] ?? \mime_content_type($file),
+                'Update' => \date('Y-m-d H:i:s', \filemtime($file)),
+                'Width' => $info[0] ?? null,
+            ];
+            if ('image/svg+xml' === $data['Type'] && \preg_match('/<svg(\s[^>]*)?>([\s\S]*?)<\/svg>/i', \file_get_contents($file), $m)) {
+                if (\preg_match('/<title>([\s\S]+?)<\/title>/i', $m[2], $mm)) {
+                    $data['Title'] = \trim($mm[1]);
+                }
+                foreach ([
+                    'Height' => 'height',
+                    'ID' => 'id',
+                    'Width' => 'width'
+                ] as $k => $v) {
+                    if (\preg_match('/\b' . \x($v) . '=([\'"]?)([^\'"]+?)\1/i', $m[1], $mm)) {
+                        $data[$k] = $mm[2];
+                    }
+                }
+            } else if ('image/jpeg' == $data['Type'] && \function_exists("\\exif_read_data")) {
+                $info = \exif_read_data($file);
+                foreach ([
+                    'Create' => 'DateTime',
+                    'Focal Length' => 'FocalLength'
+                ] as $k => $v) {
+                    if (isset($info[$v])) {
+                        $data[$k] = $info[$v];
+                    }
+                }
+                if (isset($info['COMPUTED'])) {
+                    foreach ([
+                        'Aperture' => 'ApertureFNumber',
+                        'Comment' => 'UserComment',
+                        'Copyright' => 'Copyright'
+                    ] as $k => $v) {
+                        if (isset($info['COMPUTED'][$v])) {
+                            $data[$k] = $info['COMPUTED'][$v];
+                        }
+                    }
+                }
+                $data['Camera'] = \trim(($info['Make'] ?? "") . ' ' . ($info['Model'] ?? ""));
+                if (isset($data['Create'])) {
+                    $data['Create'] = \date('Y-m-d H:i:s', \strtotime($data['Create']));
+                }
+            }
+            if ($data = \array_filter($data)) {
+                \ksort($data);
+                $content .= '<table>';
+                $content .= '<tbody>';
+                foreach ($data as $k => $v) {
+                    $content .= '<tr>';
+                    $content .= '<th scope="row">';
+                    $content .= \i($k);
+                    $content .= '</th>';
+                    $content .= '<td>';
+                    $content .= $v;
+                    $content .= '</td>';
+                    $content .= '</tr>';
+                }
+                $content .= '</tbody>';
+                $content .= '</table>';
+            }
+            $_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['file']['lot']['image'] = [
+                'content' => $content,
+                'stack' => 9.9,
+                'type' => 'content'
+            ];
+            // Disable auto-focus on file name
+            unset($_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['file']['lot']['fields']['lot']['name']['focus']);
+        }
+    }
     if (0 === \strpos($_['path'] . '/', 'image/')) {
-        // $_['lot']['desk']['lot']['form']['lot'][0]['lot']['tasks']['lot']['blob']['url']['query']['type'] = 'blob/image';
+        $_['lot']['desk']['lot']['form']['lot'][0]['lot']['tasks']['lot']['blob']['icon'] = 'M13 19C13 19.7 13.13 20.37 13.35 21H5C3.9 21 3 20.11 3 19V5C3 3.9 3.9 3 5 3H19C20.11 3 21 3.9 21 5V13.35C20.37 13.13 19.7 13 19 13V5H5V19H13M13.96 12.29L11.21 15.83L9.25 13.47L6.5 17H13.35C13.75 15.88 14.47 14.91 15.4 14.21L13.96 12.29M20 18V15H18V18H15V20H18V23H20V20H23V18H20Z';
+        $_['lot']['desk']['lot']['form']['lot'][0]['lot']['tasks']['lot']['blob']['url']['query']['type'] = 'blob/image';
         $_['lot']['desk']['lot']['form']['lot'][0]['lot']['tasks']['lot']['file']['skip'] = true; // Disable file button
         if (isset($_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['files'])) {
             $_['lot']['desk']['lot']['form']['lot'][0]['title'] = 'Image';
@@ -313,10 +362,9 @@ function set($_) {
             !empty($_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['files']['lot']['files']['type']) &&
             'files' === $_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['files']['lot']['files']['type']
         ) {
-            $route = \trim($state->x->image->route ?? 'image', '/');
             foreach ($_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['files']['lot']['files']['lot'] as $k => &$v) {
                 if (\is_file($k) && \is_string($v['link']) && 0 === \strpos($v['link'], $url . '/lot/image/')) {
-                    $is_image = false !== \strpos(',apng,avif,bmp,gif,jpeg,jpg,png,webp,xbm,xpm,', ',' . \pathinfo($v['link'], \PATHINFO_EXTENSION) . ',');
+                    $is_image = false !== \strpos(',apng,avif,bmp,gif,jpeg,jpg,png,svg,webp,xbm,xpm,', ',' . \pathinfo($v['link'], \PATHINFO_EXTENSION) . ',');
                     $v['tasks']['proxy'] = [
                         'active' => $is_image && $x_image,
                         'description' => 'View image via proxy link',
@@ -330,10 +378,12 @@ function set($_) {
             }
             unset($v);
         }
+        return $_;
     }
     return $_;
 }, 10.1);
 
 \Hook::set('_', __NAMESPACE__ . "\\_", 20);
+\Hook::set('do.blob.set', __NAMESPACE__ . "\\blob", 9.9);
 \Hook::set('do.page.get', __NAMESPACE__ . "\\get", 0);
 \Hook::set('do.page.set', __NAMESPACE__ . "\\set", 0);
