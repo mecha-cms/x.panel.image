@@ -313,9 +313,7 @@ function set($_) {
             }
             $content = "";
             $content .= '<figure class="figure">';
-            $content .= '<a href="' . \eat($link) . '" target="_blank" title="' . \eat(\i('Open in new window')) . '">';
             $content .= '<img' . (!empty($data['Height']) ? ' height="' . $data['Height'] . '"' : "") . ' alt="' . \eat(\i('Loading...')) . '" src="' . \eat($link) . '?v=' . \filemtime($file) . '"' . (!empty($data['Width']) ? ' width="' . $data['Width'] . '"' : "") . '>';
-            $content .= '</a>';
             $content .= '</figure>';
             if ($data = \array_filter($data)) {
                 \ksort($data);
@@ -327,7 +325,13 @@ function set($_) {
                     $content .= \i($k);
                     $content .= '</th>';
                     $content .= '<td>';
-                    $content .= $v;
+                    if ('Name' === $k) {
+                        $content .= '<a href="' . \eat($link) . '" target="_blank" title="' . \eat(\i('Open in new window')) . '">';
+                        $content .= $v;
+                        $content .= '</a>';
+                    } else {
+                        $content .= $v;
+                    }
                     $content .= '</td>';
                     $content .= '</tr>';
                 }
