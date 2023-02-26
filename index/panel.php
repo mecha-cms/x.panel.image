@@ -256,19 +256,13 @@ function set($_) {
     $file = $_['file'] ?? \P;
     $route = \trim($state->x->image->route ?? 'image', '/');
     $x = \pathinfo($file, \PATHINFO_EXTENSION);
-    if (\is_file($file) && false !== \strpos(',apng,avif,bmp,gif,jpeg,jpg,png,svg,webp,xbm,xpm,', ',' . $x . ',')) {
+    if ($x_image && \is_file($file) && false !== \strpos(',apng,avif,bmp,gif,jpeg,jpg,png,svg,webp,xbm,xpm,', ',' . $x . ',')) {
         if (0 === \strpos($_['type'] . '/', 'file/') && isset($_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['file']['lot']['fields'])) {
             $link = \To::URL($file);
             if (0 === \strpos($link, $url . '/lot/image/')) {
                 // Convert to proxy URL
                 $link = \substr_replace($link, $url . '/' . $route . '/', 0, \strlen($url . '/lot/image/'));
             }
-            $content = "";
-            $content .= '<figure class="figure">';
-            $content .= '<a href="' . \eat($link) . '" target="_blank" title="' . \eat(\i('Open in new window')) . '">';
-            $content .= '<img alt="' . \eat(\i('Loading...')) . '" src="' . \eat($link) . '?v=' . \filemtime($file) . '">';
-            $content .= '</a>';
-            $content .= '</figure>';
             $info = (array) \getimagesize($file);
             $data = [
                 'Height' => $info[1] ?? null,
@@ -317,6 +311,12 @@ function set($_) {
                     $data['Create'] = \date('Y-m-d H:i:s', \strtotime($data['Create']));
                 }
             }
+            $content = "";
+            $content .= '<figure class="figure">';
+            $content .= '<a href="' . \eat($link) . '" target="_blank" title="' . \eat(\i('Open in new window')) . '">';
+            $content .= '<img' . (!empty($data['Height']) ? ' height="' . $data['Height'] . '"' : "") . ' alt="' . \eat(\i('Loading...')) . '" src="' . \eat($link) . '?v=' . \filemtime($file) . '"' . (!empty($data['Width']) ? ' width="' . $data['Width'] . '"' : "") . '>';
+            $content .= '</a>';
+            $content .= '</figure>';
             if ($data = \array_filter($data)) {
                 \ksort($data);
                 $content .= '<table>';
