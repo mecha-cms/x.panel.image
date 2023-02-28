@@ -26,7 +26,7 @@ namespace x\panel\type\field\image {
   <div class="content:row">
     <div class="content:columns has:gap">
       <div class="content:column" style="max-width: 112px;">
-        <div class="figure">
+        <div class="figure" style="align-items: center; display: flex; height: 112px; justify-content: center; padding: 0; width: 112px;">
           <img alt="" height="72" src="' . $page->{$key}(72, 72, 100) . '?v=' . \filemtime($file) . '" style="display: block;" width="72">
         </div>
       </div>
@@ -66,7 +66,7 @@ namespace x\panel\type\field\image {
   <div class="content:row">
     <div class="content:columns has:gap">
       <div class="content:column" style="max-width: 112px;">
-        <div class="figure">
+        <div class="figure" style="align-items: center; display: flex; height: 112px; justify-content: center; padding: 0; width: 112px;">
           <img alt="" height="72" src="' . \eat($page->{$key}(72, 72, 100)) . '" style="display: block;" width="72">
         </div>
       </div>
@@ -115,7 +115,7 @@ namespace x\panel\type\field\image {
   <div class="content:row">
     <div class="content:columns has:gap">
       <div class="content:column" style="max-width: 112px;">
-        <div class="figure">
+        <div class="figure" style="align-items: center; display: flex; height: 112px; justify-content: center; padding: 0; width: 112px;">
           <img alt="" height="72" src="' . $page->{$key}(72, 72, 100) . '?v=' . \filemtime($file) . '" style="display: block;" width="72">
         </div>
       </div>
@@ -155,7 +155,7 @@ namespace x\panel\type\field\image {
   <div class="content:row">
     <div class="content:columns has:gap">
       <div class="content:column" style="max-width: 112px;">
-        <div class="figure">
+        <div class="figure" style="align-items: center; display: flex; height: 112px; justify-content: center; padding: 0; width: 112px;">
           <img alt="" height="72" src="' . \eat($page->{$key}(72, 72, 100)) . '" style="display: block;" width="72">
         </div>
       </div>

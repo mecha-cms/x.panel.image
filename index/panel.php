@@ -265,50 +265,90 @@ function set($_) {
             }
             $info = (array) \getimagesize($file);
             $data = [
-                'Height' => $info[1] ?? null,
+                'Dimension' => ($width = $info[0] ?? 0) . ' &#xd7; ' . ($height = $info[1] ?? 0),
                 'Name' => \basename($file),
                 'Size' => \size(\filesize($file)),
                 'Type' => $info['mime'] ?? \mime_content_type($file),
-                'Update' => \date('Y-m-d H:i:s', \filemtime($file)),
-                'Width' => $info[0] ?? null,
+                'Updated' => \date('Y-m-d H:i:s', \filemtime($file))
             ];
             if ('image/svg+xml' === $data['Type'] && \preg_match('/<svg(\s[^>]*)?>([\s\S]*?)<\/svg>/i', \file_get_contents($file), $m)) {
                 if (\preg_match('/<title>([\s\S]+?)<\/title>/i', $m[2], $mm)) {
                     $data['Title'] = \trim($mm[1]);
                 }
-                foreach ([
-                    'Height' => 'height',
-                    'ID' => 'id',
-                    'Width' => 'width'
-                ] as $k => $v) {
-                    if (\preg_match('/\b' . \x($v) . '=([\'"]?)([^\'"]+?)\1/i', $m[1], $mm)) {
-                        $data[$k] = $mm[2];
-                    }
+                if (false !== \stripos($m[1], 'id=') && \preg_match('/\bid=([\'"]?)([^\'"]+?)\1/i', $m[1], $mm)) {
+                    $data['ID'] = $mm[2];
                 }
-            } else if ('image/jpeg' == $data['Type'] && \function_exists("\\exif_read_data")) {
-                $info = \exif_read_data($file);
-                foreach ([
-                    'Create' => 'DateTime',
-                    'Focal Length' => 'FocalLength'
-                ] as $k => $v) {
-                    if (isset($info[$v])) {
-                        $data[$k] = $info[$v];
-                    }
+                if (false !== \stripos($m[1], 'height=') && \preg_match('/\bheight=([\'"]?)([^\'"]+?)\1/i', $m[1], $mm)) {
+                    $height = (int) $mm[2];
                 }
-                if (isset($info['COMPUTED'])) {
-                    foreach ([
-                        'Aperture' => 'ApertureFNumber',
-                        'Comment' => 'UserComment',
-                        'Copyright' => 'Copyright'
-                    ] as $k => $v) {
-                        if (isset($info['COMPUTED'][$v])) {
-                            $data[$k] = $info['COMPUTED'][$v];
-                        }
-                    }
+                if (false !== \stripos($m[1], 'width=') && \preg_match('/\bwidth=([\'"]?)([^\'"]+?)\1/i', $m[1], $mm)) {
+                    $width = (int) $mm[2];
                 }
-                $data['Camera'] = \trim(($info['Make'] ?? "") . ' ' . ($info['Model'] ?? ""));
-                if (isset($data['Create'])) {
-                    $data['Create'] = \date('Y-m-d H:i:s', \strtotime($data['Create']));
+                if ($height && $width) {
+                    $data['Dimension'] = $width . ' &#xd7; ' . $height;
+                }
+            } else if (\function_exists("\\exif_read_data") && ('image/jpeg' == $data['Type'] || 'image/tiff' === $data['Type'])) {
+                $info = \array_replace_recursive((array) \exif_read_data($file, 'IFD0'), (array) \exif_read_data($file, 'EXIF'));
+                $data['Camera'] = "";
+                if (isset($info['Make'])) {
+                    $data['Camera'] .= '<span title="Make">' . $info['Make'] . '</span>';
+                }
+                if (isset($info['Model'])) {
+                    $data['Camera'] .= ': <span title="Model">' . $info['Model'] . '</span>';
+                }
+                if (isset($info['ExposureTime'])) {
+                    $data['Shutter'] = $info['ExposureTime'] . ' s';
+                }
+                if (isset($info['COMPUTED']['ApertureFNumber'])) {
+                    $data['Aperture'] = $info['COMPUTED']['ApertureFNumber'];
+                }
+                if (isset($info['DateTimeOriginal'])) {
+                    $data['Created'] = \date('Y-m-d H:i:s', \strtotime($info['DateTimeOriginal']));
+                } else if (isset($info['DateTime'])) {
+                    $data['Created'] = \date('Y-m-d H:i:s', \strtotime($info['DateTime']));
+                }
+                if (isset($info['ISOSpeedRatings'])) {
+                    $data['ISO'] = $info['ISOSpeedRatings'];
+                }
+                if (isset($info['FocalLength'])) {
+                    $v = \explode('/', $info['FocalLength']);
+                    $data['Focal Length'] = (((int) $v[0]) / ((int) ($v[1] ?? 1))) . ' mm';
+                }
+                if (isset($info['FocalLengthIn35mmFilm'])) {
+                    $data['3MM Focal Length'] = $info['FocalLengthIn35mmFilm'] . ' mm';
+                }
+                if (isset($info['UndefinedTag:0xA434'])) {
+                    $data['Lens'] = $info['UndefinedTag:0xA434'];
+                }
+                if (isset($info['MeteringMode'])) {
+                    $data['Metering Mode'] = \i(['Unknown', 'Average', 'Center Weighted Average', 'Spot', 'Multi Spot', 'Pattern', 'Partial', 'Other'][$info['MeteringMode']] ?? "");
+                }
+                if (isset($info['Flash'])) {
+                    $types = [
+                        '0' => 'No Flash',
+                        '1' => 'Flash',
+                        '5' => 'Flash, No Strobe Return',
+                        '7' => 'Flash, Strobe Return',
+                        '9' => 'Flash, Compulsory',
+                        'd' => 'Flash, Compulsory, No Strobe Return',
+                        'f' => 'Flash, Compulsory, Strobe Return',
+                        '10' => 'No Flash, Compulsory',
+                        '18' => 'No Flash, Auto',
+                        '19' => 'Flash, Auto',
+                        '1d' => 'Flash, Auto, No Strobe Return',
+                        '1f' => 'Flash, Auto, Strobe Return',
+                        '20' => 'No Flash Function',
+                        '41' => 'Flash, Red-Eye',
+                        '45' => 'Flash, Red-Eye, No Strobe Return',
+                        '47' => 'Flash, Red-Eye, Strobe Return',
+                        '49' => 'Flash, Compulsory, Red-Eye',
+                        '4d' => 'Flash, Compulsory, Red-Eye, No Strobe Return',
+                        '4f' => 'Flash, Compulsory, Red-Eye, Strobe Return',
+                        '59' => 'Flash, Auto, Red-Eye',
+                        '5d' => 'Flash, Auto, No Strobe Return, Red-Eye',
+                        '5f' => 'Flash, Auto, Strobe Return, Red-Eye',
+                    ];
+                    $data['Flash'] = \i($types[\dechex($info['Flash'])] ?? "");
                 }
             }
             $content = "";
