@@ -264,12 +264,15 @@ function set($_) {
                 $link = \substr_replace($link, $url . '/' . $route . '/', 0, \strlen($url . '/lot/image/'));
             }
             $info = (array) \getimagesize($file);
+            $ctime = \filectime($file);
+            $mtime = \filemtime($file);
             $data = [
+                'Create' => \date('Y-m-d H:i:s', \min($ctime, $mtime)),
                 'Dimension' => ($width = $info[0] ?? 0) . ' &#xd7; ' . ($height = $info[1] ?? 0),
                 'Name' => \basename($file),
                 'Size' => \size(\filesize($file)),
                 'Type' => $info['mime'] ?? \mime_content_type($file),
-                'Updated' => \date('Y-m-d H:i:s', \filemtime($file))
+                'Update' => $ctime !== $mtime ? \date('Y-m-d H:i:s', \max($ctime, $mtime)) : null
             ];
             if ('image/svg+xml' === $data['Type'] && \preg_match('/<svg(\s[^>]*)?>([\s\S]*?)<\/svg>/i', \file_get_contents($file), $m)) {
                 if (\preg_match('/<title>([\s\S]+?)<\/title>/i', $m[2], $mm)) {
@@ -303,9 +306,9 @@ function set($_) {
                     $data['Aperture'] = $info['COMPUTED']['ApertureFNumber'];
                 }
                 if (isset($info['DateTimeOriginal'])) {
-                    $data['Created'] = \date('Y-m-d H:i:s', \strtotime($info['DateTimeOriginal']));
+                    $data['Create'] = \date('Y-m-d H:i:s', \strtotime($info['DateTimeOriginal']));
                 } else if (isset($info['DateTime'])) {
-                    $data['Created'] = \date('Y-m-d H:i:s', \strtotime($info['DateTime']));
+                    $data['Create'] = \date('Y-m-d H:i:s', \strtotime($info['DateTime']));
                 }
                 if (isset($info['ISOSpeedRatings'])) {
                     $data['ISO'] = $info['ISOSpeedRatings'];
