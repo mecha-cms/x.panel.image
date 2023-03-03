@@ -24,7 +24,7 @@ normal URL field depending on certain conditions.
 By default, this field stores the image link as an `image` data in the
 page file, so you can print out the image link like so in the layout file:
 
-~~~ .php
+~~~ .html.php
 <img alt="" src="<?= $page->image; ?>">
 ~~~
 
