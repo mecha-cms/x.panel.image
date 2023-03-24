@@ -396,13 +396,13 @@ function set($_) {
         $_['lot']['desk']['lot']['form']['lot'][0]['lot']['tasks']['lot']['file']['skip'] = true; // Disable file button
         if (isset($_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['files'])) {
             $_['lot']['desk']['lot']['form']['lot'][0]['title'] = 'Image';
-            $_['lot']['desk']['lot']['form']['lot'][0]['description'] = ['This folder is intended to store image files only. They cannot be accessed directly due to the default folder permissions. You can make a proxy to allow people to access them, or you can store them in %s instead.', '<a href="' . \x\panel\to\link([
+            $_['lot']['desk']['lot']['form']['lot'][0]['description'] = ['The purpose of this folder is to exclusively store image files. Due to the default folder permissions, direct access to these files is restricted. However, you may either create a proxy to enable authorized users to access them, or choose to store them within %s instead.', '<a href="' . \x\panel\to\link([
                 'hash' => null,
                 'part' => 1,
                 'path' => 'asset',
                 'query' => null,
                 'task' => 'get'
-            ]) . '">this folder</a>'];
+            ]) . '">' . \i('this folder') . '</a>'];
         }
         if (
             !empty($_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['files']['lot']['files']['lot']) &&
