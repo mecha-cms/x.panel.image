@@ -10,10 +10,6 @@ images:
 author: Taufik Nurrohman
 type: Markdown
 version: 2.0.0
-
-use:
-  '.\lot\x\image': 0
-  '.\lot\x\panel': 1
 ...
 
 This extension adds a special field to store an image link. It can be displayed as an image uploader field or as a
