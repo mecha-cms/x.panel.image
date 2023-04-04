@@ -97,6 +97,7 @@ namespace x\panel\type\field\image {
             }
         }
         $value['type'] = 'field/blob';
+        $value[2]['accept'] = $value[2]['accept'] ?? 'image/*';
         unset($value['value']);
         return \x\panel\type($value, $key);
     }
