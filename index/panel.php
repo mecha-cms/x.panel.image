@@ -79,6 +79,9 @@ function blob($_) {
     if ('POST' !== $_SERVER['REQUEST_METHOD']) {
         return $_;
     }
+    if (0 !== \strpos(($_POST['type'] ?? \P) . '/', 'blob/image/')) {
+        return $_;
+    }
     $folder = $_['folder'] ?? "";
     if (isset($_POST['blobs']) && \is_array($_POST['blobs'])) {
         foreach ($_POST['blobs'] as $k => $v) {
