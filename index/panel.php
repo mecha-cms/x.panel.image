@@ -75,7 +75,7 @@ function _($_) {
     return $_;
 }
 
-function blob($_) {
+function do__blob__set($_) {
     if ('POST' !== $_SERVER['REQUEST_METHOD']) {
         return $_;
     }
@@ -100,7 +100,7 @@ function blob($_) {
     return $_;
 }
 
-function get($_) {
+function do__page__get($_) {
     if ('GET' === $_SERVER['REQUEST_METHOD'] && $_['file']) {
         \extract($GLOBALS, \EXTR_SKIP);
         $key = $state->x->{'panel.image'}->key ?? 'image';
@@ -123,7 +123,7 @@ function get($_) {
     return \x\panel__image\set($_);
 }
 
-function set($_) {
+function do__page__set($_) {
     \extract($GLOBALS, \EXTR_SKIP);
     $blob = $_POST['page'][$key = $state->x->{'panel.image'}->key ?? 'image'] ?? [];
     $vital = !empty($state->x->{'panel.image'}->vital);
@@ -431,6 +431,6 @@ function set($_) {
 }, 10.1);
 
 \Hook::set('_', __NAMESPACE__ . "\\_", 20);
-\Hook::set('do.blob.set', __NAMESPACE__ . "\\blob", 9.9);
-\Hook::set('do.page.get', __NAMESPACE__ . "\\get", 0);
-\Hook::set('do.page.set', __NAMESPACE__ . "\\set", 0);
+\Hook::set('do.blob.set', __NAMESPACE__ . "\\do__blob__set", 9.9);
+\Hook::set('do.page.get', __NAMESPACE__ . "\\do__page__get", 0);
+\Hook::set('do.page.set', __NAMESPACE__ . "\\do__page__set", 0);
