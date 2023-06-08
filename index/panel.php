@@ -120,7 +120,7 @@ function do__page__get($_) {
             return $_;
         }
     }
-    return \x\panel__image\set($_);
+    return \x\panel__image\do__page__set($_);
 }
 
 function do__page__set($_) {
