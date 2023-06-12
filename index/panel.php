@@ -166,7 +166,7 @@ function do__page__set($_) {
             return $_;
         }
         $n = $state->x->{'panel.image'}->name ?? "";
-        $name = \To::file($blob['name'] ?? "");
+        $name = \To::file(\lcfirst($blob['name'] ?? ""), '.@_~');
         if (!\is_string($name)) {
             $_['alert']['error'][$folder] = 'The file you are about to upload doesn\'t seem to have a valid file name.';
             return $_;
