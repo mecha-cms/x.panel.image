@@ -1,6 +1,6 @@
 <?php
 
-namespace x\panel\type\field {
+namespace x\panel\lot\type\field {
     function image($value, $key) {
         $type = \strtr($value['type'] ?? "", '/', "\\");
         if (0 === \strpos($type . "\\", $prefix = "field\\image\\")) {
@@ -11,7 +11,7 @@ namespace x\panel\type\field {
     function images($value, $key) {} // TODO
 }
 
-namespace x\panel\type\field\image {
+namespace x\panel\lot\type\field\image {
     function blob($value, $key) {
         \extract($GLOBALS, \EXTR_SKIP);
         $image = $value['value'] ?? "";
@@ -99,7 +99,7 @@ namespace x\panel\type\field\image {
         $value['type'] = 'field/blob';
         $value[2]['accept'] = $value[2]['accept'] ?? 'image/*';
         unset($value['value']);
-        return \x\panel\type($value, $key);
+        return \x\panel\lot\type($value, $key);
     }
     function link($value, $key) {
         \extract($GLOBALS, \EXTR_SKIP);
@@ -206,11 +206,11 @@ namespace x\panel\type\field\image {
             ]
         ] : null];
         $value['pattern'] = $value['pattern'] ?? "^(data:image/(apng|avif|gif|jpeg|png|svg\\+xml|webp);base64,|(https?:)?\\/\\/|[.]{0,2}\\/)[^\\/]\\S*$";
-        return \x\panel\type\field\u_r_l($value, $key);
+        return \x\panel\lot\type\field\u_r_l($value, $key);
     }
 }
 
-namespace x\panel\type\field\images {
+namespace x\panel\lot\type\field\images {
     function blob($value, $key) {} // TODO
     function blobs($value, $key) {} // TODO
     function link($value, $key) {} // TODO
