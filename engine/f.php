@@ -32,6 +32,9 @@ namespace x\panel\lot\type\field\image {
       </div>
       <div class="content:column">
         <table>
+          <colgroup>
+            <col style="width: 20%;">
+          </colgroup>
           <tbody>
             <tr>
               <th scope="row">' . \i('Name') . '</th>
@@ -61,6 +64,14 @@ namespace x\panel\lot\type\field\image {
 </div>
 ');
             } else if ($v = $page->{$key}) {
+                try {
+                    $headers = \array_change_key_case(\get_headers((string) $v, true), \CASE_LOWER);
+                    $type = $headers['content-type'] ?? '-';
+                    $size = \size((int) ($headers['content-length'] ?? 0));
+                } catch (\Throwable $e) {
+                    $size = '-';
+                    $type = '-';
+                }
                 $value['field-exit'] = \trim('
 <div class="content:rows p">
   <div class="content:row">
@@ -72,6 +83,9 @@ namespace x\panel\lot\type\field\image {
       </div>
       <div class="content:column">
         <table>
+          <colgroup>
+            <col style="width: 20%;">
+          </colgroup>
           <tbody>
             <tr>
               <th scope="row">' . \i('Name') . '</th>
@@ -81,11 +95,11 @@ namespace x\panel\lot\type\field\image {
             </tr>
             <tr>
               <th scope="row">' . \i('Size') . '</th>
-              <td>-</td>
+              <td>' . $size . '</td>
             </tr>
             <tr>
               <th scope="row">' . \i('Type') . '</th>
-              <td>-</td>
+              <td>' . $type . '</td>
             </tr>
           </tbody>
         </table>
@@ -122,6 +136,9 @@ namespace x\panel\lot\type\field\image {
       </div>
       <div class="content:column">
         <table>
+          <colgroup>
+            <col style="width: 20%;">
+          </colgroup>
           <tbody>
             <tr>
               <th scope="row">' . \i('Name') . '</th>
@@ -151,6 +168,14 @@ namespace x\panel\lot\type\field\image {
 </div>
 ');
             } else if ($v = $page->{$key}) {
+                try {
+                    $headers = \array_change_key_case(\get_headers((string) $v, true), \CASE_LOWER);
+                    $type = $headers['content-type'] ?? '-';
+                    $size = \size((int) ($headers['content-length'] ?? 0));
+                } catch (\Throwable $e) {
+                    $size = '-';
+                    $type = '-';
+                }
                 $value['field-exit'] = \trim('
 <div class="content:rows p">
   <div class="content:row">
@@ -162,6 +187,9 @@ namespace x\panel\lot\type\field\image {
       </div>
       <div class="content:column">
         <table>
+          <colgroup>
+            <col style="width: 20%;">
+          </colgroup>
           <tbody>
             <tr>
               <th scope="row">' . \i('Name') . '</th>
@@ -171,11 +199,11 @@ namespace x\panel\lot\type\field\image {
             </tr>
             <tr>
               <th scope="row">' . \i('Size') . '</th>
-              <td>-</td>
+              <td>' . $size . '</td>
             </tr>
             <tr>
               <th scope="row">' . \i('Type') . '</th>
-              <td>-</td>
+              <td>' . $type . '</td>
             </tr>
           </tbody>
         </table>
