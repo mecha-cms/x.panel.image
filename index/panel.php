@@ -27,17 +27,15 @@ function _($_) {
     }
     if (0 === \strpos($_['type'] . '/', 'page/')) {
         \extract($GLOBALS, \EXTR_SKIP);
-        $page = new \Page($_['file'] ?: null);
         $active = !isset($state->x->{'panel.image'}->active) || $state->x->{'panel.image'}->active;
         $description = $state->x->{'panel.image'}->description ?? true;
-        $image = $page[$key = $state->x->{'panel.image'}->key ?? 'image'] ?? "";
-        $link = 0 === \strpos($image, '//') || 0 === \strpos($image, 'data:image/') || false !== \strpos($image, '://');
+        $key = $state->x->{'panel.image'}->key ?? 'image';
         $skip = !empty($state->x->{'panel.image'}->skip);
         $title = $state->x->{'panel.image'}->title ?? 'Image';
         $type = $_['query']['image'] ?? null;
         $vital = !empty($state->x->{'panel.image'}->vital);
-        $file = $image && !$link && \is_file($f = \PATH . $image) ? \path($f) : false;
-        if ($image && !\array_key_exists('image', (array) ($_['query'] ?? []))) {
+        $page_image = isset($page) && $page instanceof \Page ? ($page[$key] ?? ('get' === $_['task'] ? ($page->{$key} ?? null) : null)) : false;
+        if ($page_image && !$type) {
             $type = 'link';
         }
         // Set default field description if `description` value is truthy but not translate-able
@@ -48,17 +46,37 @@ function _($_) {
                 $description = ['Select an image file or %s to paste an image link.', '<a aria-description="' . \eat(\i('This action will reload the page.')) . '" href="' . \eat($url->query(['image' => 'link'])) . '">' . \i('click here') . '</a>'];
             }
         }
+        $is_link = 0 === \strpos($test = (string) $page_image, '//') || 0 === \strpos($test, 'data:image/') || false !== \strpos($test, '://');
+        if (isset($state->x->image) && \is_file($file = \To::path(\long($test)))) {
+            $image = new \Image($file);
+            $is_link = false;
+        } else {
+            $image = new \Image;
+        }
         $_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['page']['lot']['fields']['lot']['image'] = [
             'active' => $active,
             'description' => $description,
-            'file' => $_['file'] ?: null,
-            'key' => $key,
             'name' => 'page[' . $key . ']',
             'skip' => $skip,
             'stack' => 15,
+            'state' => $is_link ? [
+                'height' => 72,
+                'image' => $page->{$key}(72, 72, 100),
+                'link' => $page_image,
+                'size' => '-',
+                'type' => '-',
+                'width' => 72
+            ] : [
+                'height' => 72,
+                'image' => $page->{$key}(72, 72, 100),
+                'path' => $image->path,
+                'size' => $image->size,
+                'type' => $image->type,
+                'width' => 72
+            ],
             'title' => $title,
             'type' => \trim('image/' . ($type ?? ""), '/'),
-            'value' => "" !== $image ? $image : null,
+            'value' => "" !== $page_image ? $page_image : null,
             'vital' => $vital,
             'width' => true
         ];
