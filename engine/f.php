@@ -187,21 +187,26 @@ namespace x\panel\lot\type\field\image {
             \PATH . \D => '/',
             \D => '/'
         ]) . '/' . \i('image') . '.jpg';
-        $value['icon'] = $value['icon'] ?? [null, $image_url && 'set' !== $_['task'] ? [
-            'd' => $is_link || $is_vital ? 'M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z' : 'M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19M8,9H16V19H8V9M15.5,4L14.5,3H9.5L8.5,4H5V6H19V4H15.5Z',
-            'description' => $is_link || $is_vital ? 'View' : 'Delete',
-            'link' => $is_link || $is_vital ? $image_url : null,
-            'url' => $is_link || $is_vital ? null : [
-                'part' => 0,
-                'path' => \substr(\strtok($image_url, '?&#'), \strlen($url . '/lot/')),
-                'query' => [
-                    'kick' => $url->current,
-                    'token' => $_['token'],
-                    'trash' => !empty($state->x->panel->trash) ? \date('Y-m-d-H-i-s') : null
-                ],
-                'task' => 'let'
+        $value['tasks'] = \array_replace_recursive([
+            'let' => [
+                'description' => $is_link || $is_vital ? 'View' : 'Delete',
+                'icon' => $is_link || $is_vital ? 'M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z' : 'M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19M8,9H16V19H8V9M15.5,4L14.5,3H9.5L8.5,4H5V6H19V4H15.5Z',
+                'skip' => !$image_url || 'set' === $_['task'],
+                'link' => $is_link || $is_vital ? $image_url : null,
+                'stack' => 10,
+                'title' => false,
+                'url' => $is_link || $is_vital ? null : [
+                    'part' => 0,
+                    'path' => \substr(\strtok($image_url ?? "", '?&#'), \strlen($url . '/lot/')),
+                    'query' => [
+                        'kick' => $url->current,
+                        'token' => $_['token'],
+                        'trash' => !empty($state->x->panel->trash) ? \date('Y-m-d-H-i-s') : null
+                    ],
+                    'task' => 'let'
+                ]
             ]
-        ] : null];
+        ], $value['tasks'] ?? []);
         $value['is']['link'] = $value['is']['link'] ?? $is_link;
         $value['pattern'] = $value['pattern'] ?? "(data:image/(apng|avif|gif|jpeg|png|svg\\+xml|webp);base64,|(https?:)?\\/\\/|[.]{0,2}\\/)[^\\/]\\S*";
         return \x\panel\lot\type\field\u_r_l($value, $key);

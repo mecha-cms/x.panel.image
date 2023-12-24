@@ -418,10 +418,6 @@ function do__page__set($_) {
     if (0 === \strpos($_['path'] . '/', 'image/')) {
         $_['lot']['desk']['lot']['form']['lot'][0]['lot']['tasks']['lot']['blob']['url']['query']['type'] = null;
         $_['lot']['desk']['lot']['form']['lot'][0]['lot']['tasks']['lot']['file']['skip'] = true; // Disable file button
-        if (isset($_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['files'])) {
-            $_['lot']['desk']['lot']['form']['lot'][0]['title'] = 'Image';
-            $_['lot']['desk']['lot']['form']['lot'][0]['description'] = 'Store your precious image files here.';
-        }
         if (
             !empty($_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['files']['lot']['files']['lot']) &&
             !empty($_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['files']['lot']['files']['type']) &&
@@ -433,7 +429,7 @@ function do__page__set($_) {
                     $v['tasks']['proxy'] = [
                         'active' => $is_image && $x_image,
                         'description' => 'View image via proxy link',
-                        'icon' => 'M19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M19,19H5V5H19V19M11,16H10C8.39,16 6,14.94 6,12C6,9.07 8.39,8 10,8H11V10H10C9.54,10 8,10.17 8,12C8,13.9 9.67,14 10,14H11V16M14,16H13V14H14C14.46,14 16,13.83 16,12C16,10.1 14.33,10 14,10H13V8H14C15.61,8 18,9.07 18,12C18,14.94 15.61,16 14,16M15,13H9V11H15V13Z',
+                        'icon' => 'M14 3v2h3.59l-9.83 9.83l1.41 1.41L19 6.41V10h2V3m-2 16H5V5h7V3H5c-1.11 0-2 .89-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2v7Z',
                         'link' => \substr_replace($v['link'], $url . '/' . $route . '/', 0, \strlen($url . '/lot/image/')),
                         'stack' => 10.1,
                         'title' => 'View',
