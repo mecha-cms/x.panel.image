@@ -12,7 +12,7 @@ namespace x\panel\lot\type\field {
 
 namespace x\panel\lot\type\field\image {
     function blob($value, $key) {
-        \extract($GLOBALS, \EXTR_SKIP);
+        \extract(\lot(), \EXTR_SKIP);
         $image = (array) ($value['state'] ?? []);
         $image_height = $image['height'] ?? 72;
         $image_image = $image['image'] ?? null;
@@ -101,7 +101,7 @@ namespace x\panel\lot\type\field\image {
         return \x\panel\lot\type($value, $key);
     }
     function link($value, $key) {
-        \extract($GLOBALS, \EXTR_SKIP);
+        \extract(\lot(), \EXTR_SKIP);
         $image = (array) ($value['state'] ?? []);
         $image_height = $image['height'] ?? 72;
         $image_image = $image['image'] ?? null;
@@ -209,6 +209,7 @@ namespace x\panel\lot\type\field\image {
         ], $value['tasks'] ?? []);
         $value['is']['link'] = $value['is']['link'] ?? $is_link;
         $value['pattern'] = $value['pattern'] ?? "(data:image/(apng|avif|gif|jpeg|png|svg\\+xml|webp);base64,|(https?:)?\\/\\/|[.]{0,2}\\/)[^\\/]\\S*";
-        return \x\panel\lot\type\field\u_r_l($value, $key);
+        $value['type'] = 'field/link';
+        return \x\panel\lot\type($value, $key);
     }
 }

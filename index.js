@@ -12,9 +12,6 @@
     var isNull = function isNull(x) {
         return null === x;
     };
-    var isNumeric = function isNumeric(x) {
-        return /^-?(?:\d*.)?\d+$/.test(x + "");
-    };
     var isObject = function isObject(x, isPlain) {
         if (isPlain === void 0) {
             isPlain = true;
@@ -30,57 +27,99 @@
     var toCount = function toCount(x) {
         return x.length;
     };
-    var toNumber = function toNumber(x, base) {
-        if (base === void 0) {
-            base = 10;
-        }
-        return base ? parseInt(x, base) : parseFloat(x);
-    };
-    var toValue = function toValue(x) {
+    var fromValue = function fromValue(x) {
         if (isArray(x)) {
             return x.map(function (v) {
-                return toValue(v);
+                return fromValue(x);
             });
-        }
-        if (isNumeric(x)) {
-            return toNumber(x);
         }
         if (isObject(x)) {
             for (var k in x) {
-                x[k] = toValue(x[k]);
+                x[k] = fromValue(x[k]);
             }
             return x;
         }
-        if ('false' === x) {
-            return false;
+        if (false === x) {
+            return 'false';
         }
-        if ('null' === x) {
-            return null;
+        if (null === x) {
+            return 'null';
         }
-        if ('true' === x) {
-            return true;
+        if (true === x) {
+            return 'true';
         }
-        return x;
+        return "" + x;
     };
     var D = document;
     var W = window;
-    var getAttribute = function getAttribute(node, attribute, parseValue) {
-        if (parseValue === void 0) {
-            parseValue = true;
+    var getAttributes = function getAttributes(node, parseValue) {
+        var attributes = node.attributes,
+            value,
+            values = {};
+        for (var i = 0, j = attributes.length; i < j; ++i) {
+            value = attributes[i].value;
+            values[attributes[i].name] = value;
         }
-        if (!hasAttribute(node, attribute)) {
-            return null;
-        }
-        var value = node.getAttribute(attribute);
-        return parseValue ? toValue(value) : value;
+        return values;
+    };
+    var getElement = function getElement(query, scope) {
+        return (scope || D).querySelector(query);
     };
     var getElements = function getElements(query, scope) {
-        return (scope || D).querySelectorAll(query);
+        return (D).querySelectorAll(query);
     };
-    var hasAttribute = function hasAttribute(node, attribute) {
-        return node.hasAttribute(attribute);
+    var getHTML = function getHTML(node, trim) {
+        if (trim === void 0) {
+            trim = true;
+        }
+        var state = 'innerHTML';
+        if (!hasState(node, state)) {
+            return false;
+        }
+        var content = node[state];
+        content = trim ? content.trim() : content;
+        return "" !== content ? content : null;
     };
-    var theLocation = W.location;
+    var getParent = function getParent(node, query) {
+        {
+            return node.closest(query) || null;
+        }
+    };
+    var hasState = function hasState(node, state) {
+        return state in node;
+    };
+    var letAttribute = function letAttribute(node, attribute) {
+        return node.removeAttribute(attribute), node;
+    };
+    var setAttribute = function setAttribute(node, attribute, value) {
+        if (true === value) {
+            value = attribute;
+        }
+        return node.setAttribute(attribute, fromValue(value)), node;
+    };
+    var setAttributes = function setAttributes(node, attributes) {
+        var value;
+        for (var attribute in attributes) {
+            value = attributes[attribute];
+            if (value || "" === value || 0 === value) {
+                setAttribute(node, attribute, value);
+            } else {
+                letAttribute(node, attribute);
+            }
+        }
+        return node;
+    };
+    var setHTML = function setHTML(node, content, trim) {
+        if (trim === void 0) {
+            trim = true;
+        }
+        if (null === content) {
+            return node;
+        }
+        var state = 'innerHTML';
+        return hasState(node, state) && (node[state] = trim ? content.trim() : content), node;
+    };
+    var theHistory = W.history;
     var offEventDefault = function offEventDefault(e) {
         return e && e.preventDefault();
     };
@@ -93,18 +132,39 @@
 
     function onClickConfirm(toggle) {
         onEvent('click', toggle, function (e) {
-            var _this = this;
-            _.dialog.confirm(getAttribute(this, 'aria-description')).then(function (value) {
-                value && (theLocation.href = _this.href);
-            }).catch(function (e) {
-                return 0;
+            var $ = this;
+            var fieldTarget = getParent($, '.content\\:field,.lot\\:field');
+            if (!fieldTarget) {
+                return;
+            }
+            var inputTarget = getElement('input[name]', fieldTarget),
+                inputTargetName = inputTarget.name,
+                inputToken = inputTarget.form.token,
+                route;
+            W.fetch(route = $.href).then(function (response) {
+                return response.text();
+            }).then(function (text) {
+                var parser = new DOMParser();
+                var doc = parser.parseFromString(text, 'text/html');
+                var inputTargetNew = doc.forms.set[inputTargetName];
+                var inputTokenNew = doc.forms.set.token;
+                var fieldTargetNew = getParent(inputTargetNew, '.content\\:field,.lot\\:field');
+                if (fieldTargetNew) {
+                    setAttributes(fieldTarget, getAttributes(fieldTargetNew));
+                    setHTML(fieldTarget, getHTML(fieldTargetNew));
+                }
+                if (inputTokenNew) {
+                    inputToken.value = inputTokenNew.value;
+                }
+                theHistory.pushState({}, "", route);
+                onChange();
             });
             offEventDefault(e);
         });
     }
 
     function onChange() {
-        var toggles = getElements('.description a[aria-description]:where([href*="?image="],[href*="&image="])');
+        var toggles = getElements('.description a:where([href*="?image="],[href*="&image="])');
         toCount(toggles) && toggles.forEach(onClickConfirm);
     }
     onChange();

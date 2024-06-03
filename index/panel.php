@@ -11,7 +11,7 @@ if (!empty($state->x->{'panel.image'}->description)) {
 }
 
 if (!\array_key_exists('type', $_GET) && !isset($_['type']) && 'set' === $_['task'] && 0 === \strpos($_['path'] . '/', 'image/')) {
-    $GLOBALS['_']['type'] = $_['type'] = 'blob/image';
+    \lot('_')['type'] = $_['type'] = 'blob/image';
 }
 
 function _($_) {
@@ -26,7 +26,7 @@ function _($_) {
         return $_;
     }
     if (0 === \strpos($_['type'] . '/', 'page/')) {
-        \extract($GLOBALS, \EXTR_SKIP);
+        \extract(\lot(), \EXTR_SKIP);
         $active = !isset($state->x->{'panel.image'}->active) || $state->x->{'panel.image'}->active;
         $description = $state->x->{'panel.image'}->description ?? true;
         $key = $state->x->{'panel.image'}->key ?? 'image';
@@ -41,9 +41,9 @@ function _($_) {
         // Set default field description if `description` value is truthy but not translate-able
         if ($description && !\is_array($description) && !\is_string($description)) {
             if ('link' === $type) {
-                $description = ['Paste an image link or %s to select an image file.', '<a aria-description="' . \eat(\i('This action will reload the page.')) . '" href="' . \eat($url->query(['image' => 'blob'])) . '">' . \i('click here') . '</a>'];
+                $description = ['Paste an image link or %s to select an image file.', '<a href="' . \eat($url->query(['image' => 'blob'])) . '">' . \i('click here') . '</a>'];
             } else {
-                $description = ['Select an image file or %s to paste an image link.', '<a aria-description="' . \eat(\i('This action will reload the page.')) . '" href="' . \eat($url->query(['image' => 'link'])) . '">' . \i('click here') . '</a>'];
+                $description = ['Select an image file or %s to paste an image link.', '<a href="' . \eat($url->query(['image' => 'link'])) . '">' . \i('click here') . '</a>'];
             }
         }
         $is_link = 0 === \strpos($test = (string) $page_image, '//') || 0 === \strpos($test, 'data:image/') || false !== \strpos($test, '://');
@@ -120,7 +120,7 @@ function do__blob__set($_) {
 
 function do__page__get($_) {
     if ('GET' === $_SERVER['REQUEST_METHOD'] && $_['file']) {
-        \extract($GLOBALS, \EXTR_SKIP);
+        \extract(\lot(), \EXTR_SKIP);
         $key = $state->x->{'panel.image'}->key ?? 'image';
         $page = \From::page(\file_get_contents($_['file']), true);
         if ($blob = (string) ($page[$key] ?? "")) {
@@ -142,7 +142,7 @@ function do__page__get($_) {
 }
 
 function do__page__set($_) {
-    \extract($GLOBALS, \EXTR_SKIP);
+    \extract(\lot(), \EXTR_SKIP);
     $blob = $_POST['page'][$key = $state->x->{'panel.image'}->key ?? 'image'] ?? [];
     $vital = !empty($state->x->{'panel.image'}->vital);
     if ('POST' !== $_SERVER['REQUEST_METHOD']) {
@@ -276,7 +276,7 @@ function do__page__set($_) {
     if (isset($_['lot']['bar']['lot'][0]['lot']['folder']['lot']['image'])) {
         $_['lot']['bar']['lot'][0]['lot']['folder']['lot']['image']['icon'] = 'M19,19H5V5H19M19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M13.96,12.29L11.21,15.83L9.25,13.47L6.5,17H17.5L13.96,12.29Z';
     }
-    \extract($GLOBALS, \EXTR_SKIP);
+    \extract(\lot(), \EXTR_SKIP);
     $x_image = isset($state->x->image);
     $file = $_['file'] ?? \P;
     $route = \trim($state->x->image->route ?? 'image', '/');

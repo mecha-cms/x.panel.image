@@ -4,8 +4,8 @@ foreach ([
     'The file you are about to upload doesn\'t seem to be an image.' => "The file you are about to upload doesn\u{2019}t seem to be an image.",
     'The file you are about to upload doesn\'t seem to have a valid file name.' => "The file you are about to upload doesn\u{2019}t seem to have a valid file name."
 ] as $k => $v) {
-    if (isset($GLOBALS['I'][$k])) {
+    if (isset(lot('I')[$k])) {
         continue;
     }
-    $GLOBALS['I'][$k] = $v;
+    lot('I')[$k] = $v;
 }
