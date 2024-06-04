@@ -130,42 +130,44 @@
         node.addEventListener(name, then, options);
     };
 
-    function onClickConfirm(toggle) {
-        onEvent('click', toggle, function (e) {
-            var $ = this;
-            var fieldTarget = getParent($, '.content\\:field,.lot\\:field');
-            if (!fieldTarget) {
-                return;
+    function onEventClickToggle(e) {
+        var $ = this;
+        var fieldTarget = getParent($, '.content\\:field,.lot\\:field');
+        if (!fieldTarget) {
+            return;
+        }
+        var inputTarget = getElement('input[name]', fieldTarget),
+            inputTargetName = inputTarget.name,
+            inputToken = inputTarget.form.token,
+            route;
+        W.fetch(route = $.href).then(function (response) {
+            return response.text();
+        }).then(function (text) {
+            var parser = new DOMParser();
+            var doc = parser.parseFromString(text, 'text/html');
+            var inputTargetNew = doc.forms.set[inputTargetName];
+            var inputTokenNew = doc.forms.set.token;
+            var fieldTargetNew = getParent(inputTargetNew, '.content\\:field,.lot\\:field');
+            if (fieldTargetNew) {
+                setAttributes(fieldTarget, getAttributes(fieldTargetNew));
+                setHTML(fieldTarget, getHTML(fieldTargetNew));
             }
-            var inputTarget = getElement('input[name]', fieldTarget),
-                inputTargetName = inputTarget.name,
-                inputToken = inputTarget.form.token,
-                route;
-            W.fetch(route = $.href).then(function (response) {
-                return response.text();
-            }).then(function (text) {
-                var parser = new DOMParser();
-                var doc = parser.parseFromString(text, 'text/html');
-                var inputTargetNew = doc.forms.set[inputTargetName];
-                var inputTokenNew = doc.forms.set.token;
-                var fieldTargetNew = getParent(inputTargetNew, '.content\\:field,.lot\\:field');
-                if (fieldTargetNew) {
-                    setAttributes(fieldTarget, getAttributes(fieldTargetNew));
-                    setHTML(fieldTarget, getHTML(fieldTargetNew));
-                }
-                if (inputTokenNew) {
-                    inputToken.value = inputTokenNew.value;
-                }
-                theHistory.pushState({}, "", route);
-                onChange();
-            });
-            offEventDefault(e);
+            if (inputTokenNew) {
+                inputToken.value = inputTokenNew.value;
+            }
+            theHistory.pushState({}, "", route);
+            onChange();
         });
+        offEventDefault(e);
+    }
+
+    function setEventTo(toggle) {
+        onEvent('click', toggle, onEventClickToggle);
     }
 
     function onChange() {
         var toggles = getElements('.description a:where([href*="?image="],[href*="&image="])');
-        toCount(toggles) && toggles.forEach(onClickConfirm);
+        toCount(toggles) && toggles.forEach(setEventTo);
     }
     onChange();
     _.on('change', onChange);
