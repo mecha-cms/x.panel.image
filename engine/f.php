@@ -48,6 +48,7 @@ namespace x\panel\lot\type\field\image {
             $image_name = $image['name'] ?? null;
             $image_x = $image['x'] ?? null;
         }
+        $value['field'][2]['accept'] = $value['field'][2]['accept'] ?? 'image/*';
         if ($image_url && 'get' === $_['task']) {
             $value['field-exit'] = \trim('
 
@@ -96,7 +97,6 @@ namespace x\panel\lot\type\field\image {
         }
         $value['is']['link'] = $value['is']['link'] ?? $is_link;
         $value['type'] = 'field/blob';
-        $value[2]['accept'] = $value[2]['accept'] ?? 'image/*';
         unset($value['value']);
         return \x\panel\lot\type($value, $key);
     }
