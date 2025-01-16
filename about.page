@@ -9,7 +9,7 @@ images:
 - /lot/x/panel.image/index/1.png
 author: Taufik Nurrohman
 type: Markdown
-version: 2.0.0
+version: 2.0.1
 ...
 
 This extension adds a special field to store an image link. It can be displayed as an image uploader field or as a
@@ -37,7 +37,7 @@ State::set("x.panel\\.image.key", 'cover');
 // Store the image file to `'.\lot\asset\photos'` folder
 State::set("x.panel\\.image.folder", LOT . D . 'asset' . D . 'photos');
 
-// Store the image file to `'.\lot\asset\2023\01\04'` folder (assuming today is 2022-01-04)
+// Store the image file to `'.\lot\asset\2022\01\04'` folder (assuming today is 2022-01-04)
 State::set("x.panel\\.image.folder", LOT . D . 'asset' . D . date('Y/m/d'));
 
 // Store the image file as `'2022-01-04.jpg'` (assuming today is 2022-01-04 and the image file extension is `'jpg'`)
