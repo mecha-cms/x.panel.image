@@ -9,7 +9,7 @@ images:
 - /lot/x/panel.image/index/1.png
 author: Taufik Nurrohman
 type: Markdown
-version: 2.0.1
+version: 2.0.0
 ...
 
 This extension adds a special field to store an image link. It can be displayed as an image uploader field or as a
